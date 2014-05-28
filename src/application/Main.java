@@ -20,6 +20,8 @@ import netscape.javascript.JSObject;
 
 import org.w3c.dom.Document;
 
+import database.sqlite.Database;
+
 
 public class Main extends Application {
 
@@ -39,11 +41,19 @@ public class Main extends Application {
 		});
 		primaryStage.setScene(new Scene(webView));
 		primaryStage.show();
+		
+		//===========//
+		// TEST CODE //
+		//===========//
+//		Database db = new Database();
+//		db.test();			
+		//===========//
 
 		// Install Java-JavaScript Bridge
 		JSObject window = (JSObject) webEngine.executeScript("window");
 		try {
 			window.setMember("OperatingSystem", new OperatingSystem());
+			window.setMember("Database", new Database());
 
 			ClientSocket sock = new ClientSocket("localhost", 8080, webEngine);
 			window.setMember("clientSocket", sock);

@@ -23,18 +23,18 @@ return {
 	dirList: function(parentID, params, callback) {
 		var fileSystemIdentifier = "LOCALFILESYSTEM";
 		var directory = params.root;
-		
+
 		var dirFiles = OperatingSystem.getDirListing(directory);
 		var folders = '';
 		var files = '';
 
 		if(dirFiles !== null) {
-			for (var i=0; i<dirFiles.length; i++){ 
+			for (var i=0; i<dirFiles.length; i++){
 				var el = dirFiles[i];
 				var fullpath = el.getAbsolutePath();
 				var name = fullpath.replace(/^.*[\\\/]/, '');
-				
-				// Get the extension: 
+
+				// Get the extension:
 				//var file = el.substring(el.lastIndexOf("/"));
 				var extension = name.substring(name.indexOf(".")); // .tar.gz
 				//var extension = el.extension();
@@ -42,7 +42,7 @@ return {
 				var id = parentID+'_'+fileSystemIdentifier+'_'+i;
 
 				if (el.isDirectory()) folders += '<li id='+id+' class="directory collapsed"><a href="#" rel="'+fullpath+'">'+name+'</a></li>';
-				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+fullpath+'">'+name+'</a></li>'
+				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+fullpath+'">'+name+'</a></li>';
 			}
 		}
 
@@ -53,5 +53,5 @@ return {
 
 		callback(res);
 	}
-}
+};
 });

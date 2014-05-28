@@ -35,8 +35,8 @@ public class OperatingSystem {
 		File[] list = readDir(dir);
 
 		if (list == null) return;
-		for ( File f : list ) {
-			if ( f.isDirectory() ) {
+		for (File f : list) {
+			if (f.isDirectory()) {
 				getDirListingRecursive(f.getAbsolutePath(), dirListing);
 			}
 			else {

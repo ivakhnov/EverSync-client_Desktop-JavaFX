@@ -8,7 +8,7 @@ define(function() {
 		 * Main initializations
 		 */
 		var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px; white-space:nowrap;';
-		
+
 		$('#mainLayout').w2layout({
 			name: 'mainLayout',
 			panels: [
@@ -22,21 +22,21 @@ define(function() {
 						onClick: function (event) {
 							console.log('event');
 						}
-					}  
+					}
 				},
 				{ type: 'main', size: '100%', resizable: true, style: pstyle }
 			]
 		});
-		$('#layout_mainLayout_panel_top > .w2ui-panel-content').remove()
+		$('#layout_mainLayout_panel_top > .w2ui-panel-content').remove();
 	});
 
 
 	/**
 	 * Variables
 	 */
-	
+
 	// Depending on the organization of the data, it has to be parsed by an appropriate
-	// module. For example the structure of the data read from the local file system is 
+	// module. For example the structure of the data read from the local file system is
 	// different from the structure of the data received from the server. Therefore different
 	// modules are needed to parse it, since the visualization is almost the same of all the data,
 	// even though it's from different sources.
@@ -49,13 +49,13 @@ define(function() {
 	 * Help methods
 	 */
 	initFileTree = function (id, controller, root, content, trigFn) {
-		$(id).fileTree({ 
+		$(id).fileTree({
 			connector: controller,
 			root: root,
 			content : content,
-			folderEvent: 'click', 
-			expandSpeed: 200, 
-			collapseSpeed: 200 
+			folderEvent: 'click',
+			expandSpeed: 200,
+			collapseSpeed: 200
 		}, trigFn);
 
 	};
@@ -70,7 +70,7 @@ define(function() {
 
 	function fileTreeRecursion (linkedFiles, root) {
 		$('#layout_mainLayout_panel_main > .w2ui-panel-content').append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
-		
+
 		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, function(file) {
 			// alert(JSON.stringify(file));
 
@@ -95,7 +95,7 @@ define(function() {
 	return {
 		init : init,
 		fileTreeRecursion : fileTreeRecursion
-	}
-	
+	};
+
 
 });

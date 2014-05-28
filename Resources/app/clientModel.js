@@ -4,8 +4,8 @@ define(function() {
 	var _rootPath = null;
 	var _id = null;
 	var _os = null;
-	
-	
+
+
 	return {
 		alreadyInstalled: function() {
 			return _id != null;
@@ -17,14 +17,16 @@ define(function() {
 
 		setId: function(id) {
 			_id = id;
+			Database.setId(id);
 		},
 
 		getRootPath: function() {
 			return _rootPath;
 		},
 
-		setRootPath: function(newPath) {
-			_rootPath = newPath;
+		setRootPath: function(path) {
+			_rootPath = path;
+			Database.setRootPath(path);
 		},
 
 		getOs: function() {
@@ -37,7 +39,7 @@ define(function() {
 				//var dirFiles = os.getDirectoryListing(dir);
 //				console.log(dirFiles);
 //				if(dirFiles !== null) {
-//					for (var i=0; i<dirFiles.length; i++){ 
+//					for (var i=0; i<dirFiles.length; i++){
 //						var el = dirFiles[i];
 //						if (el.isDirectory()) iter(el.nativePath());
 //						else res.push(el.nativePath());
@@ -45,9 +47,9 @@ define(function() {
 //				}
 //			}
 			//iter(_rootPath);
-			
+
 			//var dirFiles = OperatingSystem.getDirListing("/Documents");
-				
+
 			//console.log(dirFiles);
 			return "res";
 		},
@@ -63,7 +65,9 @@ define(function() {
 			//console.log(testing[2].lastModified());
 			//console.log(testing.size());
 			_os = OperatingSystem.getOs();
+			_id = Database.getId();
+			_rootPath = Database.getRootPath();
 		}
-	}
+	};
 
 });

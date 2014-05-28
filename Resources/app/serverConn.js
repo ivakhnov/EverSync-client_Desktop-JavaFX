@@ -14,7 +14,7 @@ define(function() {
 	}
 
 	/**
-	 * Function that will be executed once the client is connected to the server.
+	 * Functions that will be executed once the client is connected to the server.
 	 */
 	function onConnect() {
 		_onConnectCallback();
