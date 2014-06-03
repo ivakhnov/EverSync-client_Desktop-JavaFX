@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Set;
 
 
-public class OperatingSystem {
+public class FileSystem {
 	
-	private String constructPath(String dir) {
+	protected String constructPath(String dir) {
 		char homeDir = '~';
 		char firstChar = dir.charAt(0);
 		if (firstChar == homeDir) {
@@ -62,9 +62,5 @@ public class OperatingSystem {
 		return dirListingRec;
 
 	}
-	
-	public String getOs() {
-		OSValidator OS = new OSValidator();
-		return OS.getOS();
-	}
+
 }

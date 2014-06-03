@@ -24,7 +24,7 @@ return {
 		var fileSystemIdentifier = "LOCALFILESYSTEM";
 		var directory = params.root;
 
-		var dirFiles = OperatingSystem.getDirListing(directory);
+		var dirFiles = FileSystem.getDirListing(directory);
 		var folders = '';
 		var files = '';
 

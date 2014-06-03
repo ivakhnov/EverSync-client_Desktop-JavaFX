@@ -160,22 +160,55 @@ define(function() {
 
 	/**
 	 * Synchrnization if the local file system (or its changes) with to the server
-	 * This function has to be triggered periodically. The server sends a sync response back.
+	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
 	 */
-	function synchronize() {
+	function synchronize(eventType, filePath, fileLastModified) {
+		var methodName;
+
+		switch(eventType) {
+			case "ENTRY_CREATE":
+				console.log("ENTRY_CREATE");
+				methodName = "addFile";
+				break;
+			case "ENTRY_DELETE":
+				console.log("ENTRY_DELETE");
+				methodName = "deleteFile";
+				break;
+			case "ENTRY_MODIFY":
+				console.log("ENTRY_MODIFY");
+				methodName = "modifyFile";
+				break;
+			default:
+				console.log("Unrecognized changeType on file: " + changeType);
+		};
+
 		var msg = {
-			"msgType"		: "Sync Request",
-			"fileTree"	: _clientModel.getFileTree()
+			"msgType"		: "Normal Request",
+			"methodName"	: methodName,
+			"params"		: {
+				"filePath"		: filePath,
+				"lastModified"	: fileLastModified
+			}
 		};
 
 		_socket.write(prepareMsg(msg));
+	}
+
+	/**
+	 * Installs the synchronization function and starts the listeners of the operating system to
+	 * track teh changes.
+	 */
+	function startSyncing() {
+		FileSystemWatcher.init(Database, _clientModel.getRootPath());
+		window.synchronize = synchronize;
+		FileSystemWatcher.start("synchronize");
 	}
 
 	// Return access to some internal functions a.k.a. public members.
 	return {
 		connect : connect,
 		getLinkedItems : getLinkedItems,
-		synchronize : synchronize
+		startSyncing : startSyncing
 	};
 
 });

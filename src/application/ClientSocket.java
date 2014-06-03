@@ -48,10 +48,10 @@ public class ClientSocket {
 		Service<Void> service = new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
-				return new Task<Void>() {           
+				return new Task<Void>() {
 					@Override
 					protected Void call() throws Exception {
-						//Background work                       
+						//Background work
 						try {
 							while(_socketOpen) {
 								String serverMsg = _in.readLine();

@@ -1,5 +1,6 @@
 package application;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -45,15 +46,21 @@ public class Main extends Application {
 		//===========//
 		// TEST CODE //
 		//===========//
-//		Database db = new Database();
-//		db.test();			
+		
 		//===========//
+		
+		// For debugging purposes, we start each time with a new, empty database
+		// Therefore, delete the existing one
+		//File dbFile = new File("EverSync.sqlite");
+		//dbFile.delete();
 
 		// Install Java-JavaScript Bridge
 		JSObject window = (JSObject) webEngine.executeScript("window");
 		try {
-			window.setMember("OperatingSystem", new OperatingSystem());
+			window.setMember("OSValidator", new OSValidator());
+			window.setMember("FileSystem", new FileSystem());
 			window.setMember("Database", new Database());
+			window.setMember("FileSystemWatcher", new FileSystemWatcher(webEngine));
 
 			ClientSocket sock = new ClientSocket("localhost", 8080, webEngine);
 			window.setMember("clientSocket", sock);
