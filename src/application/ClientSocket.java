@@ -1,8 +1,15 @@
 package application;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -10,6 +17,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -31,11 +39,10 @@ public class ClientSocket {
 	private SocketAddress _serverAddress;
 	private static WebEngine _webEngine;
 
-	private Socket _socket;
+	private final Socket _socket;
 	private BufferedReader _in;
 	private DataOutputStream _out;
 	private boolean _socketOpen = false;
-	private int _socketOpenTest = 4;
 
 	public ClientSocket(String serverAddress, int serverPort, WebEngine webEngine) {
 		_webEngine = webEngine;
@@ -82,9 +89,48 @@ public class ClientSocket {
 		try {
 			_out.writeBytes(msg);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void sendFile(File file) {
+		try {
+			byte[] fileByteArray = new byte[(int) file.length()];
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+			bis.read(fileByteArray, 0, fileByteArray.length);
+			bis.close();
+			_out.write(fileByteArray, 0, fileByteArray.length);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void receiveFile(String handshakeMsg, String filePath, int fileSize) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					byte[] fileByteArray = new byte[fileSize];
+					
+					Socket socket =  new Socket();
+					socket.connect(_serverAddress);
+					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+					in.readLine(); // read the handshake message
+					out.writeBytes(handshakeMsg); // send the response
+
+					InputStream inStream = socket.getInputStream();
+					inStream.read(fileByteArray, 0, fileByteArray.length);
+					FileSystem.setFile(filePath, fileByteArray);
+
+					socket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public void connect() throws IOException {

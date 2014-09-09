@@ -62,10 +62,10 @@ define(function() {
 	function getLinkedItems(item) {
 		var req = {
 			"msgType"		: "Normal Request",
-			"methodName"	: "getLinkedItems",
+			"methodName"	: "getLinkedFiles",
 			"params"		: {
-				"itemLocation"	: item.itemLocation,
-				"itemName"		: item.itemName
+				"fileName"	: item.itemName,
+				"filePath"	: item.itemLocation
 			}
 		};
 		_socket.write(prepareMsg(req));
@@ -83,6 +83,34 @@ define(function() {
 		_mainView.fileTreeRecursion(items);
 	};
 
+	function uploadFile(filePath) {
+		console.log("Sending file: " + filePath);
+		file = FileSystem.getFile(filePath);
+		var msg = {
+			"msgType"	: "File Upload Preparation",
+			"fileSize"	: file.length().toString()
+		};
+		// Send the file size, then the file
+		console.log(msg);
+		_socket.write(prepareMsg(msg));
+		_socket.sendFile(file);
+	};
+
+	/*
+	 * Opens an additional connection to stream the file. This new connection will
+	 * go through the handshake procedure.
+	 */
+	function downloadRequest(req) {
+		filePath = req["filePath"];
+		fileSize = req["fileSize"];
+		handshakeMsg = {
+			"msgType"	: "Handshake Response",
+			"clientId"	: _clientModel.getId()
+		};
+		_socket.receiveFile(prepareMsg(handshakeMsg), filePath, parseInt(fileSize));
+	};
+
+
 	/**
 	 * Handles the method invocation on the client, which is triggered by the server.
 	 * Processes the messages of the type "Normal Response".
@@ -93,6 +121,10 @@ define(function() {
 			case "showLinkedItems":
 				console.log("showLinkedItems();");
 				showLinkedItems(msg["items"]);
+				break;
+			case "uploadFile":
+				console.log("uploadFile();");
+				uploadFile(msg["filePath"]);
 				break;
 			default:
 				console.log("Unrecognized method requested: " + method);
@@ -106,6 +138,43 @@ define(function() {
 		console.log("Synchronized successfully!");
 		return "Synchronized successfully!";
 	};
+
+	/**
+	 * Synchronization if the local file system (or its changes) with to the server
+	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
+	 */
+	function synchronize(eventType, fileName, filePath, fileLastModified) {
+		var methodName;
+
+		switch(eventType) {
+			case "ENTRY_CREATE":
+				console.log("ENTRY_CREATE");
+				methodName = "addFile";
+				break;
+			case "ENTRY_DELETE":
+				console.log("ENTRY_DELETE");
+				methodName = "deleteFile";
+				break;
+			case "ENTRY_MODIFY":
+				console.log("ENTRY_MODIFY");
+				methodName = "modifyFile";
+				break;
+			default:
+				console.log("Unrecognized changeType on file: " + changeType);
+		};
+
+		var msg = {
+			"msgType"		: "Normal Request",
+			"methodName"	: methodName,
+			"params"		: {
+				"fileName"		: fileName,
+				"filePath"		: filePath,
+				"lastModified"	: fileLastModified
+			}
+		};
+
+		_socket.write(prepareMsg(msg));
+	}
 
 	/**
 	 * Receive a message string from the server. Parse it to a JSON object.
@@ -136,7 +205,10 @@ define(function() {
 				console.log("syncResponse();");
 				syncResponse();
 				break;
-			case "Normal Response":
+			case "Download Request":
+				downloadRequest(msg);
+				break;
+			case "Normal Message":
 				console.log("messageReflect();");
 				messageReflect(msg);
 				break;
@@ -159,44 +231,8 @@ define(function() {
 	};
 
 	/**
-	 * Synchrnization if the local file system (or its changes) with to the server
-	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
-	 */
-	function synchronize(eventType, filePath, fileLastModified) {
-		var methodName;
-
-		switch(eventType) {
-			case "ENTRY_CREATE":
-				console.log("ENTRY_CREATE");
-				methodName = "addFile";
-				break;
-			case "ENTRY_DELETE":
-				console.log("ENTRY_DELETE");
-				methodName = "deleteFile";
-				break;
-			case "ENTRY_MODIFY":
-				console.log("ENTRY_MODIFY");
-				methodName = "modifyFile";
-				break;
-			default:
-				console.log("Unrecognized changeType on file: " + changeType);
-		};
-
-		var msg = {
-			"msgType"		: "Normal Request",
-			"methodName"	: methodName,
-			"params"		: {
-				"filePath"		: filePath,
-				"lastModified"	: fileLastModified
-			}
-		};
-
-		_socket.write(prepareMsg(msg));
-	}
-
-	/**
 	 * Installs the synchronization function and starts the listeners of the operating system to
-	 * track teh changes.
+	 * track the changes.
 	 */
 	function startSyncing() {
 		FileSystemWatcher.init(Database, _clientModel.getRootPath());

@@ -1,6 +1,10 @@
 package application;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,4 +67,21 @@ public class FileSystem {
 
 	}
 
+	public File getFile(String filePath) {
+		File file = new File(filePath);
+		return file;
+	}
+
+	public static void setFile(String filePath, byte[] fileByteArray) {
+		try {
+			FileOutputStream fos = new FileOutputStream(filePath, false); //false for overwriting
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+			bos.write(fileByteArray, 0, fileByteArray.length);
+			bos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

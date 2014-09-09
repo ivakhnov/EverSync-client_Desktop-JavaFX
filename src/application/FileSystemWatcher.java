@@ -61,7 +61,7 @@ public class FileSystemWatcher extends FileSystem {
 	 * the initial startup which is not a problem). Before the application client is started, the files in the controlled 
 	 * directory might be created, deleted or modified. After collecting and pushing all those updates to the server,
 	 * a JavaFX thread will be created in order to detect further changes during application activity. 
-	 * @param callback
+	 * @param callback is the 'synchronize' function from the 'serverConn' 
 	 * @throws Exception
 	 */
 	public void start(String callback) throws Exception {
@@ -95,9 +95,9 @@ public class FileSystemWatcher extends FileSystem {
 		}
 
 		// Send the final results to the server
-		for(File file : modified) { sendToServer(ENTRY_MODIFY,  file.getPath(), file.lastModified()); }
-		for(File file : toAdd) { sendToServer(ENTRY_CREATE,  file.getPath(), file.lastModified()); }
-		for(File file : toRemove) { sendToServer(ENTRY_DELETE,  file.getPath(), file.lastModified()); }
+		for(File file : modified) { sendToServer(ENTRY_MODIFY, file.getName().toString(), file.getPath(), file.lastModified()); }
+		for(File file : toAdd) { sendToServer(ENTRY_CREATE, file.getName().toString(), file.getPath(), file.lastModified()); }
+		for(File file : toRemove) { sendToServer(ENTRY_DELETE, file.getName().toString(), file.getPath(), file.lastModified()); }
 
 		// Create listener in a new JavaFX thread in order to detect further changes in file system
 		Service<Void> service = new Service<Void>() {
@@ -121,17 +121,19 @@ public class FileSystemWatcher extends FileSystem {
 	 * When a file has been created, deleted or modified, this has to be sent to the server.
 	 * This method, invokes the JavaScript function of the controller (ServerConn)
 	 * in order to send those updates to the server.
+	 * @param fileName 
 	 * @param eventKind: ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY
 	 * @param filePath: Absolute path of the file
 	 * @param lastModified: Timestamp when this file has been modified the last time
 	 */
-	private void sendToServer(WatchEvent.Kind eventKind, String filePath, Long lastModified) {
+	private void sendToServer(WatchEvent.Kind eventKind, String fileName, String filePath, Long lastModified) {
 		//System.out.println("==> "+ eventKind.name() + " " + filePath);
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				_webEngine.executeScript("window." + _callback + "('" + 
 						eventKind.name() +"','"+ 
+						fileName +"','"+
 						filePath +"','"+ 
 						lastModified + 
 					"');");
@@ -207,6 +209,7 @@ public class FileSystemWatcher extends FileSystem {
 				Path name = ev.context();
 				Path child = dir.resolve(name);
 
+				String fileName = name.getFileName().toString();
 				String absolutePath = dir.resolve(name).toString();
 				File file = new File(absolutePath);
 				Long lastModified = file.lastModified();
@@ -217,7 +220,7 @@ public class FileSystemWatcher extends FileSystem {
 				//System.out.println("event.kind().name() => " + event.kind().name());
 				//System.out.println("child => " + child);
 
-				sendToServer(event.kind(), absolutePath, lastModified); 
+				sendToServer(event.kind(), fileName, absolutePath, lastModified); 
 
 				// if directory is created, and watching recursively, then
 				// register it and its sub-directories

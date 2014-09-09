@@ -51,8 +51,8 @@ public class Main extends Application {
 		
 		// For debugging purposes, we start each time with a new, empty database
 		// Therefore, delete the existing one
-		//File dbFile = new File("EverSync.sqlite");
-		//dbFile.delete();
+		File dbFile = new File("EverSync.sqlite");
+		dbFile.delete();
 
 		// Install Java-JavaScript Bridge
 		JSObject window = (JSObject) webEngine.executeScript("window");
