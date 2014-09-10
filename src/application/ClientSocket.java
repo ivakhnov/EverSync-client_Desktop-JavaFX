@@ -123,6 +123,7 @@ public class ClientSocket {
 
 					InputStream inStream = socket.getInputStream();
 					inStream.read(fileByteArray, 0, fileByteArray.length);
+					FileSystemWatcher.ignoreEventOn(filePath);
 					FileSystem.setFile(filePath, fileByteArray);
 
 					socket.close();

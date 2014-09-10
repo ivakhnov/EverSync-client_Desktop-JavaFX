@@ -9,6 +9,8 @@ import java.nio.file.attribute.*;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.collections.*;
+
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -25,6 +27,7 @@ public class FileSystemWatcher extends FileSystem {
 	private static Map<WatchKey,Path> _keys;
 	private static String _dir;
 	private static String _callback;
+	private static Bag _ignoreEventsOn;
 	private Database _db;
 
 	// Flag which indicates whether adding a new directory has to be shown in the console.
@@ -45,6 +48,7 @@ public class FileSystemWatcher extends FileSystem {
 	 * @throws IOException 
 	 */
 	public void init(Database db, String dir) throws IOException {
+		_ignoreEventsOn = new HashBag();
 		_db = db;
 		_dir = constructPath(dir);
 		_watcher = FileSystems.getDefault().newWatchService();
@@ -220,7 +224,12 @@ public class FileSystemWatcher extends FileSystem {
 				//System.out.println("event.kind().name() => " + event.kind().name());
 				//System.out.println("child => " + child);
 
-				sendToServer(event.kind(), fileName, absolutePath, lastModified); 
+				// check if this event has to be sent to the server or be ignored
+				if(_ignoreEventsOn.getCount(absolutePath) == 0) {
+					sendToServer(event.kind(), fileName, absolutePath, lastModified);
+				} else {
+					_ignoreEventsOn.remove(absolutePath, 1); // remove one occurrence
+				}
 
 				// if directory is created, and watching recursively, then
 				// register it and its sub-directories
@@ -230,7 +239,7 @@ public class FileSystemWatcher extends FileSystem {
 							registerAll(child);
 						}
 					} catch (IOException x) {
-						// ignore to keep readbale
+						// ignore to keep readable
 					}
 				}
 			}
@@ -241,6 +250,20 @@ public class FileSystemWatcher extends FileSystem {
 				_keys.remove(key);
 			}
 		}
+	}
+
+	/**
+	 * The FileSystemWatcher tries to detect modifications to the files. Every event triggers a mechanism
+	 * to synchronize other clients so that they have the updated/modified version of the file. 
+	 * However, modification that are made by the EverSync application itself have to be skipped. For example another 
+	 * client makes a modification to a file, the new version will be downloaded by the current client so that the file
+	 * is modified by the application locally, but it doesn't mean that those local changes have to be send to other 
+	 * clients again. Otherwise it would result in an infinite loop if the clients synchronize with each other and 
+	 * at the same time keep broadcasting the synchronized modifications. 
+	 * @param filePath
+	 */
+	public static void ignoreEventOn(String filePath) {
+		_ignoreEventsOn.add(filePath);
 	}
 
 }
