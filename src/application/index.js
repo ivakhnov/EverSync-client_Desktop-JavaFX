@@ -10,12 +10,12 @@ requirejs.config({
 	}
 });
 
+
 // Load the main app module to start the app
 requirejs(["clientModel", "serverConn", "mainView"], function(clientModel, connController, mainView) {
 	clientModel.init();
 	connController.connect(clientModel, mainView, function() {
 		mainView.init(clientModel, connController);
 		connController.startSyncing();
-		// setInterval(function() {connController.synchronize()}, 3000);
 	});
 });

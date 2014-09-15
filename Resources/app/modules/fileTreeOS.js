@@ -34,10 +34,8 @@ return {
 				var fullpath = el.getAbsolutePath();
 				var name = fullpath.replace(/^.*[\\\/]/, '');
 
-				// Get the extension:
-				//var file = el.substring(el.lastIndexOf("/"));
-				var extension = name.substring(name.indexOf(".")); // .tar.gz
-				//var extension = el.extension();
+				// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
+				var extension = fullpath.split(".").pop(); // *.tar.gz will be just *.gz
 
 				var id = parentID+'_'+fileSystemIdentifier+'_'+i;
 

@@ -26,9 +26,9 @@
 // 1.00 - released (24 March 2008)
 //
 // TERMS OF USE
-// 
+//
 // This plugin is dual-licensed under the GNU General Public License and the MIT License and
-// is copyright 2008 A Beautiful Site, LLC. 
+// is copyright 2008 A Beautiful Site, LLC.
 //
 if(jQuery) (function($){
 
@@ -50,13 +50,13 @@ if(jQuery) (function($){
 		var rel = element.attr('rel');
 		// Drop the extension
 		var lastpos = rel.lastIndexOf(".");
-		rel = rel.substring(0, lastpos);
+		relWithoutExtension = rel.substring(0, lastpos);
 		// Or the name of the item is already in the rel element (in case the name and the item is actually received from
 		// the server). Fro example:
 		//    "itemName.pluginname"
 		// Or the rel element is actually a local path to the item, for example:
 		//    "/Users/username/Docuemnts/somefolder/item.ext"
-		var relItems = rel.split(/\/|\\/);
+		var relItems = relWithoutExtension.split(/\/|\\/);
 		var itemName = relItems[relItems.length - 1];
 
 		// The item location comes after the file tree id, it one before last.
@@ -89,9 +89,9 @@ if(jQuery) (function($){
 			if( o.loadMessage == undefined ) o.loadMessage = 'Loading...';
 
 			var selectedFile = null;
-			
+
 			$(this).each( function() {
-				
+
 				function showTree(c, t) {
 					$(c).addClass('wait');
 					$(".jqueryFileTree.start").remove();
@@ -99,10 +99,10 @@ if(jQuery) (function($){
 
 					// Sample output for test purposes
 					// var data = '<ul class="jqueryFileTree" style="display: none;"><li class="file ext_"><a href="#" rel="../../.DS_Store">.DS_Store</a></li><li class="file ext_"><a href="#" rel="../../.localized">.localized</a></li><li class="directory collapsed"><a href="#" rel="../../Aptana Rubles/">Aptana Rubles</a></li><li class="directory collapsed"><a href="#" rel="../../EverSync/">EverSync</a></li><li class="directory collapsed"><a href="#" rel="../../IdeaProjects/">IdeaProjects</a></li><li class="directory collapsed"><a href="#" rel="../../jQueryFileTree/">jQueryFileTree</a></li><li class="directory collapsed"><a href="#" rel="../../JSExtractor2/">JSExtractor2</a></li><li class="directory collapsed"><a href="#" rel="../../Microsoft User Data/">Microsoft User Data</a></li><li class="directory collapsed"><a href="#" rel="../../ReservEAT/">ReservEAT</a></li><li class="directory collapsed"><a href="#" rel="../../SPSSInc/">SPSSInc</a></li><li class="directory collapsed"><a href="#" rel="../../Titanium_Studio_Workspace/">Titanium_Studio_Workspace</a></li><li class="directory collapsed"><a href="#" rel="../../ViberDownloads/">ViberDownloads</a></li><li class="directory collapsed"><a href="#" rel="../../workspace_Eclipse/">workspace_Eclipse</a></li></ul></ul>';
-					
+
 					require([o.connector], function(Connector) {
 						/**
-						 * Connector to the list of files or folders, for directory browsing. 
+						 * Connector to the list of files or folders, for directory browsing.
 						 * Parameters of the connector are are in an object.
 						 *
 						 * t = directory name
@@ -116,13 +116,13 @@ if(jQuery) (function($){
 						Connector.dirList(parentID, params, function(data) {
 							$(c).find('.start').html('');
 							$(c).removeClass('wait').append(data);
-							if( o.root == t ) $(c).find('UL:hidden').show(); 
+							if( o.root == t ) $(c).find('UL:hidden').show();
 							else $(c).find('UL:hidden').slideDown({ duration: o.expandSpeed, easing: o.expandEasing });
 							bindTree(c);
 						});
 					});
 				}
-				
+
 				function bindTree(t) {
 					$(t).find('LI A').bind(o.folderEvent, function() {
 						if( $(this).parent().hasClass('directory') ) {
@@ -142,7 +142,7 @@ if(jQuery) (function($){
 							}
 						} else {
 							var fileID = $(this).parent().attr('id');
-							
+
 							$('[id='+selectedFile+'] > a').removeClass('selected');
 							$(this).addClass('selected');
 							selectedFile = fileID;

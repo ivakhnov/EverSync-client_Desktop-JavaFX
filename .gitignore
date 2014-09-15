@@ -1,6 +1,7 @@
 # Ignore following directories
 
 bin/
+installed_plugins/
 
 # Ignore the SQLite database
 

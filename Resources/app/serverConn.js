@@ -17,6 +17,10 @@ define(function() {
 	 * Functions that will be executed once the client is connected to the server.
 	 */
 	function onConnect() {
+		requirejs(["pluginLoader"], function(pluginLoader) {
+			pluginLoader.load();
+		});
+
 		_onConnectCallback();
 	};
 
@@ -47,6 +51,17 @@ define(function() {
 	function installAck(msg) {
 		_clientModel.setId(msg["clientId"]);
 		_clientModel.setRootPath(msg["rootPath"]);
+		var installFilesPerPlugin = msg["installationFiles"];
+
+		requirejs(["config"], function(config) {
+			for (var pluginName in installFilesPerPlugin) {
+				for (var fileName in installFilesPerPlugin[pluginName]) {
+					var path = config.PluginsFoldersPath + "/" + pluginName + "/" + fileName;
+					FileSystem.setFileFromJSObject(path, installFilesPerPlugin[pluginName][fileName]);
+				}
+			}
+		});
+		// Trigger the function which has to be executed after a connection.
 		onConnect();
 	};
 

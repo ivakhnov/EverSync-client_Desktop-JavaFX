@@ -2,6 +2,7 @@ package application;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,8 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import netscape.javascript.JSObject;
 
 public class FileSystem {
 	
@@ -28,10 +29,16 @@ public class FileSystem {
 	private File[] readDir(String dir) throws Exception {
 		try {
 			File root = new File(dir);
-			List<File> list = Arrays.asList(root.listFiles());
+			// Skip the hidden files using a filter
+			List<File> list = Arrays.asList(root.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File file) {
+					return !file.isHidden();
+				}
+			}));
 			return (File[]) list.toArray();
 		} catch (Exception e) {
-			throw new Exception("Reading an non-existing filepath on the client!"); 
+			throw new Exception("Reading an non-existing filepath on the client: " + dir); 
 		}
 	}
 	
@@ -74,6 +81,10 @@ public class FileSystem {
 
 	public static void setFile(String filePath, byte[] fileByteArray) {
 		try {
+			// Firstly create the intermediate directories if they don't exist
+			File file = new File(filePath);
+			file.getParentFile().mkdirs();
+			// Then create the actual file and write to it
 			FileOutputStream fos = new FileOutputStream(filePath, false); //false for overwriting
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			bos.write(fileByteArray, 0, fileByteArray.length);
@@ -83,5 +94,24 @@ public class FileSystem {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 *  The Runnable() of the JavaFX thread created in the "receiveFile" method of the ClientSocket class is
+	 *  is static, which means that used methods of other classes also have to be static. Therefore the static
+	 *  property of the "setFile" method. However, this method is also used in the JavaScript method 
+	 *  installAck() of the serverConn.js. In order to call the setFile method from the JavaScript, it has to be
+	 *  NOT a static method. Therefore this kind of method redirection.
+	 * @param filePath
+	 * @param fileByteArray
+	 */
+	public void setFileFromJSObject(String filePath, JSObject fileArrayJsobject) {
+		int length = (int) fileArrayJsobject.eval("this.length");
+		byte[] fileByteArray = new byte[length];
+		
+		for(int i=0; i<length; i++) {
+			fileByteArray[i] = (byte) (int) fileArrayJsobject.eval("this["+i+"]");
+		}
+		setFile(filePath, fileByteArray);
 	}
 }

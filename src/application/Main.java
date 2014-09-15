@@ -31,7 +31,6 @@ public class Main extends Application {
 		final WebView webView = new WebView();
 		final WebEngine webEngine = webView.getEngine();
 
-		//final URL uri = getClass().getResource("webview.html");
 		final URL uri = getClass().getResource("index.html");
 		webEngine.load(uri.toExternalForm());
 
