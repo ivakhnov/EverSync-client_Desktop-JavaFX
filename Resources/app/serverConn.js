@@ -123,6 +123,7 @@ define(function() {
 			"msgType"	: "Handshake Response",
 			"clientId"	: _clientModel.getId()
 		};
+		FileSystemWatcher.ignoreEventOn(filePath);
 		_socket.receiveFile(prepareMsg(handshakeMsg), filePath, parseInt(fileSize));
 	};
 

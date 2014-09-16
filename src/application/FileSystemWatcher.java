@@ -262,7 +262,7 @@ public class FileSystemWatcher extends FileSystem {
 	 * at the same time keep broadcasting the synchronized modifications. 
 	 * @param filePath
 	 */
-	public static void ignoreEventOn(String filePath) {
+	public void ignoreEventOn(String filePath) {
 		_ignoreEventsOn.add(filePath);
 	}
 
