@@ -1,5 +1,6 @@
 package application;
 
+import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -113,5 +114,15 @@ public class FileSystem {
 			fileByteArray[i] = (byte) (int) fileArrayJsobject.eval("this["+i+"]");
 		}
 		setFile(filePath, fileByteArray);
+	}
+	
+	public void openFile(String filePath) {
+		File file = new File(filePath);
+		try {
+			Desktop.getDesktop().open(file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

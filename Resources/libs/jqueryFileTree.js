@@ -64,16 +64,22 @@ if(jQuery) (function($){
 		var loc = part[part.length - 2];
 		var itemLocation = loc + ":" + rel;
 
+		// "fileTreeID" 		: id of the file tree where this item is showed
+		// "itemLocation"		: the full path to the location of a file (including the indication of the device)
+		// "localLocation"		: the local path to the file (might be null if the file is on a remote device and has no local path)
+		// "itemName"			: name of the file (without extension)
 		var itemInfo = {
 			"fileTreeID" 		: fileTreeID,
 			"itemLocation"		: itemLocation,
-			"itemName"			: itemName
+			"localLocation"		: rel,
+			"itemName"			: itemName,
+			"thisElement"		: element
 		};
 		callback(itemInfo);
 	};
 
 	$.extend($.fn, {
-		fileTree: function(o, h) {
+		fileTree: function(o, leftClickFn, rightClickFn) {
 
 			// Defaults
 			if( !o ) var o = {};
@@ -81,6 +87,7 @@ if(jQuery) (function($){
 			if( o.content == undefined ) o.content = null;
 			if( o.connector == undefined ) o.connector = 'modules/fileTreeOS';
 			if( o.folderEvent == undefined ) o.folderEvent = 'click';
+			if( o.fileEvent == undefined ) o.fileEvent = 'contextmenu'; // right click
 			if( o.expandSpeed == undefined ) o.expandSpeed = 500;
 			if( o.collapseSpeed == undefined ) o.collapseSpeed = 500;
 			if( o.expandEasing == undefined ) o.expandEasing = null;
@@ -124,6 +131,7 @@ if(jQuery) (function($){
 				}
 
 				function bindTree(t) {
+					// Bind the left click event
 					$(t).find('LI A').bind(o.folderEvent, function() {
 						if( $(this).parent().hasClass('directory') ) {
 							if( $(this).parent().hasClass('collapsed') ) {
@@ -148,7 +156,18 @@ if(jQuery) (function($){
 							selectedFile = fileID;
 
 							parseItemId($(this), function(itemInfo){
-								h(itemInfo);
+								leftClickFn(itemInfo);
+							});
+						}
+						return false;
+					});
+					// Bind the right click event
+					$(t).find('LI A').bind(o.fileEvent, function() {
+						if( $(this).parent().hasClass('directory') ) {
+							return false; // only files are supported by a file event
+						} else {
+							parseItemId($(this), function(itemInfo){
+								rightClickFn(itemInfo);
 							});
 						}
 						return false;

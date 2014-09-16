@@ -48,7 +48,7 @@ define(function() {
 	/**
 	 * Help methods
 	 */
-	initFileTree = function (id, controller, root, content, trigFn) {
+	initFileTree = function (id, controller, root, content, leftClickFn, rightClickFn) {
 		$(id).fileTree({
 			connector: controller,
 			root: root,
@@ -56,7 +56,7 @@ define(function() {
 			folderEvent: 'click',
 			expandSpeed: 200,
 			collapseSpeed: 200
-		}, trigFn);
+		}, leftClickFn, rightClickFn);
 
 	};
 
@@ -71,11 +71,45 @@ define(function() {
 	function fileTreeRecursion (linkedFiles, root) {
 		$('#layout_mainLayout_panel_main > .w2ui-panel-content').append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
 
-		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, function(file) {
-			// alert(JSON.stringify(file));
-
-			pruneSelectedFileTrees(parseInt(file.fileTreeID));
-			_connController.getLinkedItems(file);
+		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles,
+			function(file) { // Left click function
+				// alert(JSON.stringify(file));
+				pruneSelectedFileTrees(parseInt(file.fileTreeID));
+				_connController.getLinkedItems(file);
+			},
+			function(file) { // Right click function
+				$(file.thisElement).w2menu({
+					items: [
+						{ id: 0, text: 'Open on this device', icon: 'fa-star' },
+						{ id: 1, text: '--'},
+						{ id: 2, text: 'Copy to this device', img: 'icon-page', disabled: (file.localLocation !== "") },
+						{ id: 3, text: 'Open where located', img: 'icon-page', disabled: (file.localLocation !== "") },
+						{ id: 4, text: '--'},
+						{ id: 5, text: 'Open on: "'+'device1'+'"', img: 'icon-page', disabled: true },
+						{ id: 6, text: 'Open on: "'+'device2'+'"', img: 'icon-page', disabled: true }
+					],
+					onSelect: function(event) {
+						switch (event.index) {
+							case '0':
+								if(file.localLocation !== "") {
+									console.log("Opening file...");
+									FileSystem.openFile(file.localLocation);
+								} else {
+									console.log("file downloaden en dan openen..");
+								}
+								break;
+							case 3:
+								console.log("Opening where located...");
+								break;
+							case 5:
+							case 6:
+								console.log("Opening on remote device...");
+								break;
+							default:
+								console.error("Error in context menu!");
+						}
+					}
+				});
 		});
 
 		_fileTreesCntr++;

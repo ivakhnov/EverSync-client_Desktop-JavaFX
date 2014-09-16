@@ -42,7 +42,7 @@ return {
 				var extension = (plugin == null) ? name : plugin;
 
 				if (plugin == null) items += '<li id='+parentID+'_'+i+' class="plugin_'+i+' directory collapsed"><a href="#" rel="'+i+'">'+i+'</a></li>';
-				else items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+id+'">'+name+'</a></li>';
+				else items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="">'+name+'</a></li>';
 			}
 		}
 

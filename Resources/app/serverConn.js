@@ -87,14 +87,13 @@ define(function() {
 	};
 
 	/**
-	 * A request to the server for all the linked items to a particular item, it can take
+	 * A request to the server for all the linked items to a particular item. It can take
 	 * several seconds for the server to handle it. After having collected the data, the server
 	 * will send a message of the type "Normal Response" with the invocation of this method.
 	 * It will just pass the collected data to the view which will render the results.
+	 * (a.k.a. the callback of the "getLinkedItems" which is triggered by the server)
 	 */
 	function showLinkedItems(items) {
-		console.log("test: ");
-		console.log(items);
 		_mainView.fileTreeRecursion(items);
 	};
 
@@ -111,9 +110,11 @@ define(function() {
 		_socket.sendFile(file);
 	};
 
-	/*
+	/**
 	 * Opens an additional connection to stream the file. This new connection will
 	 * go through the handshake procedure.
+	 * Note: "request" means here that the server requests the client
+	 * to download a file!
 	 */
 	function downloadRequest(req) {
 		filePath = req["filePath"];
