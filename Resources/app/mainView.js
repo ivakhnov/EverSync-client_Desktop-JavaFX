@@ -82,8 +82,10 @@ define(function() {
 					items: [
 						{ id: 0, text: 'Open on this device', icon: 'fa-star' },
 						{ id: 1, text: '--'},
-						{ id: 2, text: 'Copy to this device', img: 'icon-page', disabled: (file.localLocation !== "") },
-						{ id: 3, text: 'Open where located', img: 'icon-page', disabled: (file.localLocation !== "") },
+						{ id: 2, text: 'Copy to this device', img: 'icon-page', hidden: (file.localLocation !== "") },
+						{ id: 3, text: 'Open where located', img: 'icon-page',
+									hidden: (file.localLocation !== ""),
+									disabled: (value instanceof Array) },
 						{ id: 4, text: '--'},
 						{ id: 5, text: 'Open on: "'+'device1'+'"', img: 'icon-page', disabled: true },
 						{ id: 6, text: 'Open on: "'+'device2'+'"', img: 'icon-page', disabled: true }
@@ -98,8 +100,12 @@ define(function() {
 									console.log("file downloaden en dan openen..");
 								}
 								break;
+							case 2:
+								console.log("Copying file to this device");
+								break;
 							case 3:
-								console.log("Opening where located...");
+								console.log("Opening where located... with the following itemLocation: " + file.itemLocation);
+								_connController.openOnRemote(file.itemLocation);
 								break;
 							case 5:
 							case 6:

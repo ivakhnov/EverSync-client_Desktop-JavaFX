@@ -113,12 +113,12 @@ define(function() {
 	/**
 	 * Opens an additional connection to stream the file. This new connection will
 	 * go through the handshake procedure.
-	 * Note: "request" means here that the server requests the client
+	 * Note: "preparation" means here that the server requests the client
 	 * to download a file!
 	 */
-	function downloadRequest(req) {
-		filePath = req["filePath"];
-		fileSize = req["fileSize"];
+	function downloadPreparation(msg) {
+		filePath = msg["filePath"];
+		fileSize = msg["fileSize"];
 		handshakeMsg = {
 			"msgType"	: "Handshake Response",
 			"clientId"	: _clientModel.getId()
@@ -127,6 +127,19 @@ define(function() {
 		_socket.receiveFile(prepareMsg(handshakeMsg), filePath, parseInt(fileSize));
 	};
 
+	/**
+	 * Sends a request to the server to open the file on the device where it is stored
+	 */
+	function openOnRemote(fileLocation) {
+		req = {
+			"msgType"		: "Normal Request",
+			"methodName"	: "openRemotely",
+			"params"		: {
+				"filePath"	: fileLocation
+			}
+		};
+		_socket.write(prepareMsg(req));
+	};
 
 	/**
 	 * Handles the method invocation on the client, which is triggered by the server.
@@ -142,6 +155,10 @@ define(function() {
 			case "uploadFile":
 				console.log("uploadFile();");
 				uploadFile(msg["filePath"]);
+				break;
+			case "openFile":
+				console.log("openFile()");
+				FileSystem.openFile(msg["filePath"]);
 				break;
 			default:
 				console.log("Unrecognized method requested: " + method);
@@ -222,8 +239,8 @@ define(function() {
 				console.log("syncResponse();");
 				syncResponse();
 				break;
-			case "Download Request":
-				downloadRequest(msg);
+			case "Download Preparation":
+				downloadPreparation(msg);
 				break;
 			case "Normal Message":
 				console.log("messageReflect();");
