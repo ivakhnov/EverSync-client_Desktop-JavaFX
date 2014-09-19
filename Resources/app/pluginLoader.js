@@ -12,9 +12,18 @@
 // Load the style sheets of the installed plugins (to display the associated icons for example).
 // Use the config file to get the path to the folder with installed plugins.
 
-define(["config"], function(config) {
+define(["config", "clientModel"], function(config, clientModel) {
+
+	function adaptPathToOs(filePath) {
+		var result = filePath;
+		if(clientModel.getOs() == "Windows") {
+			result = "file:///" + filePath;
+		}
+		return result;
+	};
 
 	function tryInstallFile(fileFullPath){
+		fileFullPath = adaptPathToOs(fileFullPath);
 		var extension = fileFullPath.split(".").pop();
 
 		switch(extension) {
@@ -35,7 +44,7 @@ define(["config"], function(config) {
 			default:
 				return "Skip the file";
 		}
-	}
+	};
 
 	return {
 
