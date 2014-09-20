@@ -12,9 +12,7 @@
 // Output a list of files for jQuery File Tree
 //
 
-
-//define(['os/File'], function(os) {
-define(function() {
+define(["modules/pathAdapterOs"], function(pathAdapter) {
 return {
 
 	// Every connector has three arguments. The parentID of the file tree, it actual parameters and a callback.
@@ -31,16 +29,17 @@ return {
 		if(dirFiles !== null) {
 			for (var i=0; i<dirFiles.length; i++){
 				var el = dirFiles[i];
-				var fullpath = el.getAbsolutePath();
-				var name = fullpath.replace(/^.*[\\\/]/, '');
+				var fullPath = el.getAbsolutePath();
+				var relPath = pathAdapter.relativizeFilePath(pathAdapter.normalizeFilePath(fullPath));
+				var name = fullPath.replace(/^.*[\\\/]/, '');
 
 				// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
-				var extension = fullpath.split(".").pop(); // *.tar.gz will be just *.gz
+				var extension = fullPath.split(".").pop(); // *.tar.gz will be just *.gz
 
 				var id = parentID+'_'+fileSystemIdentifier+'_'+i;
 
-				if (el.isDirectory()) folders += '<li id='+id+' class="directory collapsed"><a href="#" rel="'+fullpath+'">'+name+'</a></li>';
-				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+fullpath+'">'+name+'</a></li>';
+				if (el.isDirectory()) folders += '<li id='+id+' class="directory collapsed"><a href="#" rel="'+fullPath+'">'+name+'</a></li>';
+				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+relPath+'">'+name+'</a></li>';
 			}
 		}
 

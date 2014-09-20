@@ -1,4 +1,4 @@
-define(function() {
+define(["modules/pathAdapterOs"], function(pathAdapter) {
 
 
 	var _socket = null;
@@ -17,7 +17,7 @@ define(function() {
 	 * Functions that will be executed once the client is connected to the server.
 	 */
 	function onConnect() {
-		requirejs(["pluginLoader"], function(pluginLoader) {
+		requirejs(["modules/pluginLoader"], function(pluginLoader) {
 			pluginLoader.load();
 		});
 
@@ -202,7 +202,7 @@ define(function() {
 			"methodName"	: methodName,
 			"params"		: {
 				"fileName"		: fileName,
-				"filePath"		: filePath,
+				"filePath"		: pathAdapter.relativizeFilePath(pathAdapter.normalizeFilePath(filePath)),
 				"lastModified"	: fileLastModified
 			}
 		};
