@@ -2,7 +2,7 @@
  * The main code file
  */
 
-define(function() {
+define(["modules/pathAdapterOs"], function(pathAdapter) {
 	$(document).ready(function() {
 		/**
 		 * Main initializations
@@ -42,6 +42,7 @@ define(function() {
 	// even though it's from different sources.
 	var _fileTreeModule = null;
 	var _connController = null;
+	var _clientModel = null;
 	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
 
 
@@ -82,10 +83,7 @@ define(function() {
 					items: [
 						{ id: 0, text: 'Open on this device', icon: 'fa-star' },
 						{ id: 1, text: '--'},
-						{ id: 2, text: 'Copy to this device', img: 'icon-page', hidden: (file.localLocation !== "") },
-						{ id: 3, text: 'Open where located', img: 'icon-page',
-									hidden: (file.localLocation !== ""),
-									disabled: (value instanceof Array) },
+						{ id: 2, text: 'Copy to this device', img: 'icon-page', hidden: (file.hostIds.length == 0) || (_clientModel.getId() in file.hostIds) },
 						{ id: 4, text: '--'},
 						{ id: 5, text: 'Open on: "'+'device1'+'"', img: 'icon-page', disabled: true },
 						{ id: 6, text: 'Open on: "'+'device2'+'"', img: 'icon-page', disabled: true }
@@ -95,7 +93,7 @@ define(function() {
 							case '0':
 								if(file.localLocation !== "") {
 									console.log("Opening file...");
-									FileSystem.openFile(file.localLocation);
+									FileSystem.openFile(_clientModel.getRootPath() + "/" + file.localLocation);
 								} else {
 									console.log("file downloaden en dan openen..");
 								}
@@ -123,6 +121,7 @@ define(function() {
 
 	function init(clientModel, connController) {
 		_connController = connController;
+		_clientModel = clientModel;
 		// For the initial file tree column we read the data from the local file system,
 		// so this is the appropriate plugin to parse such data.
 		_fileTreeModule = 'modules/fileTreeOS';

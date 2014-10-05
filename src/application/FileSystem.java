@@ -117,7 +117,7 @@ public class FileSystem {
 	}
 	
 	public void openFile(String filePath) {
-		File file = new File(filePath);
+		File file = new File(constructPath(filePath));
 		try {
 			Desktop.getDesktop().open(file);
 		} catch (IOException e) {

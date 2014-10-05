@@ -121,8 +121,8 @@ public class Database extends DbConnection {
 	 * @param file
 	 */
 	private void addFile(File file) {
-		log.info("Adding path to database: " + file.getPath());
-		String sql = "INSERT INTO Files (path, last_modified) VALUES ('"+ file.getPath() +"', "+ file.lastModified() +")";
+		log.info("Adding path to database: " + file.getAbsolutePath());
+		String sql = "INSERT INTO Files (path, last_modified) VALUES ('"+ file.getAbsolutePath() +"', "+ file.lastModified() +")";
 		executeUpd(sql);
 	}
 
@@ -141,8 +141,8 @@ public class Database extends DbConnection {
 	 * @param file: Instance of a File object.
 	 */
 	public void removeFile(File file) {
-		log.info("Removing path from database: " + file.getPath());
-		String sql = "DELETE FROM Files WHERE path = '"+ file.getPath() +"'";
+		log.info("Removing path from database: " + file.getAbsolutePath());
+		String sql = "DELETE FROM Files WHERE path = '"+ file.getAbsolutePath() +"'";
 		executeUpd(sql);
 	}
 

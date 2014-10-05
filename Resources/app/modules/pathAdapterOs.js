@@ -35,7 +35,7 @@ define(["clientModel"], function(clientModel) {
 		// Normalizing the file path to a standard convention used in this application.
 		// More concrete, just replace the backslashes if the path is a Windows path
 		normalizeFilePath: function(filePath) {
-			return replaceAll(filePath, '\\', '/');
+			return filePath.replace(/\\/g, "/");
 		},
 
 		// Transform a concrete file path to a relative one.

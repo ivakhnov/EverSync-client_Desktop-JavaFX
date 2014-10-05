@@ -16,8 +16,6 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.web.WebEngine;
 
-import com.sun.media.jai.opimage.SubtractConstCRIF;
-
 import database.sqlite.Database;
 
 public class FileSystemWatcher extends FileSystem {
@@ -92,16 +90,16 @@ public class FileSystemWatcher extends FileSystem {
 		toAdd.removeAll(modified);		
 		Iterator<File> iter = toRemove.iterator();
 		while (iter.hasNext()) {
-			File file = new File(iter.next().getPath());
+			File file = new File(iter.next().getAbsolutePath());
 			if (modified.contains(file)) {
 				iter.remove();
 			}
 		}
 
 		// Send the final results to the server
-		for(File file : modified) { sendToServer(ENTRY_MODIFY, file.getName().toString(), file.getPath(), file.lastModified()); }
-		for(File file : toAdd) { sendToServer(ENTRY_CREATE, file.getName().toString(), file.getPath(), file.lastModified()); }
-		for(File file : toRemove) { sendToServer(ENTRY_DELETE, file.getName().toString(), file.getPath(), file.lastModified()); }
+		for(File file : modified) { sendToServer(ENTRY_MODIFY, file.getName().toString(), file.getAbsolutePath(), file.lastModified()); }
+		for(File file : toAdd) { sendToServer(ENTRY_CREATE, file.getName().toString(), file.getAbsolutePath(), file.lastModified()); }
+		for(File file : toRemove) { sendToServer(ENTRY_DELETE, file.getName().toString(), file.getAbsolutePath(), file.lastModified()); }
 
 		// Create listener in a new JavaFX thread in order to detect further changes in file system
 		Service<Void> service = new Service<Void>() {
@@ -138,7 +136,7 @@ public class FileSystemWatcher extends FileSystem {
 				_webEngine.executeScript("window." + _callback + "('" + 
 						eventKind.name() +"','"+ 
 						fileName +"','"+
-						filePath +"','"+ 
+						filePath.replace("\\", "/") +"','"+ 
 						lastModified + 
 					"');");
 			}

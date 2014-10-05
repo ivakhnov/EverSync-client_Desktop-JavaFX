@@ -64,6 +64,9 @@ if(jQuery) (function($){
 		var loc = part[part.length - 2];
 		var itemLocation = loc + ":" + rel;
 
+		var hostIds = element.attr('hostIds') || "";
+		hostIds = hostIds.split(',');;
+
 		// "fileTreeID" 		: id of the file tree where this item is showed
 		// "itemLocation"		: the full path to the location of a file (including the indication of the device)
 		// "localLocation"		: the local path to the file (might be null if the file is on a remote device and has no local path)
@@ -73,6 +76,7 @@ if(jQuery) (function($){
 			"itemLocation"		: itemLocation,
 			"localLocation"		: rel,
 			"itemName"			: itemName,
+			"hostIds"			: hostIds,
 			"thisElement"		: element
 		};
 		callback(itemInfo);
