@@ -4,6 +4,8 @@ define(function() {
 	var _rootPath = null;
 	var _id = null;
 	var _os = null;
+	var _installedClients = [];
+	var _connectedClients = [];
 
 
 	return {
@@ -31,6 +33,22 @@ define(function() {
 
 		getOs: function() {
 			return _os;
+		},
+
+		setInstalledClients: function(clientsArray){
+			_installedClients = clientsArray;
+		},
+
+		getInstalledClients: function() {
+			return _installedClients;
+		},
+
+		setConnectedClients: function(clientsArray) {
+			_connectedClients = clientsArray;
+		},
+
+		getConnectedClients : function() {
+			return _connectedClients;
 		},
 
 		/**

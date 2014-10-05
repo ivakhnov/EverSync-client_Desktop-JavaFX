@@ -142,6 +142,20 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	/**
+	 * Update the local list of the installed clients
+	 */
+	function setInstalledClients(clientsArray) {
+		_clientModel.setInstalledClients(clientsArra);
+	};
+
+	/**
+	 * Update the local list of the connected clients
+	 */
+	function setConnectedClients(clientsArray) {
+		_clientModel.setConnectedClients(clientsArray);
+	};
+
+	/**
 	 * Handles the method invocation on the client, which is triggered by the server.
 	 * Processes the messages of the type "Normal Response".
 	 */
@@ -159,6 +173,14 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			case "openFile":
 				console.log("openFile()");
 				FileSystem.openFile(msg["filePath"]);
+				break;
+			case "setInstalledClients":
+				console.log("setInstalledClients();" + msg["clients"]);
+				setInstalledClients(msg["clients"].split(','));
+				break;
+			case "setConnectedClients":
+				console.log("setConnectedClients();" + msg["clients"]);
+				setConnectedClients(msg["clients"].split(','));
 				break;
 			default:
 				console.log("Unrecognized method requested: " + method);
