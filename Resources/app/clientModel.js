@@ -36,7 +36,9 @@ define(function() {
 		},
 
 		setInstalledClients: function(clientsArray){
-			_installedClients = clientsArray;
+			_installedClients = clientsArray.filter(function(el) {
+				return el != _id;
+			});
 		},
 
 		getInstalledClients: function() {
@@ -44,7 +46,9 @@ define(function() {
 		},
 
 		setConnectedClients: function(clientsArray) {
-			_connectedClients = clientsArray;
+			_connectedClients = clientsArray.filter(function(el) {
+				return el != _id;
+			});
 		},
 
 		getConnectedClients : function() {

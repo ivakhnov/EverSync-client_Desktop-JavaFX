@@ -145,7 +145,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	 * Update the local list of the installed clients
 	 */
 	function setInstalledClients(clientsArray) {
-		_clientModel.setInstalledClients(clientsArra);
+		_clientModel.setInstalledClients(clientsArray);
 	};
 
 	/**
@@ -176,11 +176,11 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				break;
 			case "setInstalledClients":
 				console.log("setInstalledClients();" + msg["clients"]);
-				setInstalledClients(msg["clients"].split(','));
+				setInstalledClients(msg["clients"]);
 				break;
 			case "setConnectedClients":
 				console.log("setConnectedClients();" + msg["clients"]);
-				setConnectedClients(msg["clients"].split(','));
+				setConnectedClients(msg["clients"]);
 				break;
 			default:
 				console.log("Unrecognized method requested: " + method);
