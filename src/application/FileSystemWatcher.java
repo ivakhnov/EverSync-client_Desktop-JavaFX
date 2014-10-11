@@ -136,7 +136,7 @@ public class FileSystemWatcher extends FileSystem {
 				_webEngine.executeScript("window." + _callback + "('" + 
 						eventKind.name() +"','"+ 
 						fileName +"','"+
-						filePath.replace("\\", "/") +"','"+ 
+						filePath +"','"+ 
 						lastModified + 
 					"');");
 			}
@@ -217,16 +217,21 @@ public class FileSystemWatcher extends FileSystem {
 				Long lastModified = file.lastModified();
 
 				// print out event
-				//System.out.println("ev.context() => " + ev.context());
-				//System.out.println("dir.resolve(name) => " + dir.resolve(name));
-				//System.out.println("event.kind().name() => " + event.kind().name());
-				//System.out.println("child => " + child);
+//				System.out.println("ev.context() => " + ev.context());
+//				System.out.println("dir.resolve(name) => " + dir.resolve(name));
+//				System.out.println("event.kind().name() => " + event.kind().name());
+//				System.out.println("child => " + child);
+//				System.out.println("fileName => " + fileName);
+//				System.out.println("absolutePath => " + absolutePath);
 
-				// check if this event has to be sent to the server or be ignored
-				if(_ignoreEventsOn.getCount(absolutePath) == 0) {
+				// Check if this event has to be sent to the server or be ignored,
+				// also skip the modification of the folders
+				if((_ignoreEventsOn.getCount(absolutePath) == 0) && !file.isDirectory()) {
 					sendToServer(event.kind(), fileName, absolutePath, lastModified);
+					System.out.println("Modification detected and sent to server!");
 				} else {
 					_ignoreEventsOn.remove(absolutePath, 1); // remove one occurrence
+					System.out.println("Modification detected but skipped!");
 				}
 
 				// if directory is created, and watching recursively, then
@@ -261,7 +266,9 @@ public class FileSystemWatcher extends FileSystem {
 	 * @param filePath
 	 */
 	public void ignoreEventOn(String filePath) {
-		_ignoreEventsOn.add(filePath);
+		String path = FileSystem.constructPath(filePath);
+		File file = new File(path);
+		_ignoreEventsOn.add(file.getAbsolutePath());
 	}
 
 }

@@ -9,15 +9,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import netscape.javascript.JSObject;
 
 public class FileSystem {
 	
-	protected String constructPath(String dir) {
+	public static String constructPath(String dir) {
 		char homeDir = '~';
 		char firstChar = dir.charAt(0);
 		if (firstChar == homeDir) {
@@ -76,11 +74,12 @@ public class FileSystem {
 	}
 
 	public File getFile(String filePath) {
-		File file = new File(filePath);
+		File file = new File(constructPath(filePath));
 		return file;
 	}
 
 	public static void setFile(String filePath, byte[] fileByteArray) {
+		filePath = constructPath(filePath);
 		try {
 			// Firstly create the intermediate directories if they don't exist
 			File file = new File(filePath);
@@ -116,6 +115,10 @@ public class FileSystem {
 		setFile(filePath, fileByteArray);
 	}
 	
+	/**
+	 * Open file given a particular path
+	 * @param filePath
+	 */
 	public void openFile(String filePath) {
 		File file = new File(constructPath(filePath));
 		try {
@@ -124,5 +127,9 @@ public class FileSystem {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void createAndOpenTempFile(String fileName, JSObject fileArrayJsobject) {
+		
 	}
 }

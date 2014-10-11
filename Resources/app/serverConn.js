@@ -98,6 +98,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	function uploadFile(filePath) {
+		filePath = _clientModel.getRootPath() + "/" + filePath;
 		console.log("Sending file: " + filePath);
 		file = FileSystem.getFile(filePath);
 		var msg = {
@@ -117,7 +118,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	 * to download a file!
 	 */
 	function downloadPreparation(msg) {
-		filePath = msg["filePath"];
+		filePath = _clientModel.getRootPath() + "/" + msg["filePath"];
 		fileSize = msg["fileSize"];
 		handshakeMsg = {
 			"msgType"	: "Handshake Response",
@@ -201,6 +202,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	 */
 	function synchronize(eventType, fileName, filePath, fileLastModified) {
 		var methodName;
+		var path = pathAdapter.relativizeFilePath(pathAdapter.normalizeFilePath(filePath));
 
 		switch(eventType) {
 			case "ENTRY_CREATE":
@@ -224,11 +226,12 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			"methodName"	: methodName,
 			"params"		: {
 				"fileName"		: fileName,
-				"filePath"		: pathAdapter.relativizeFilePath(pathAdapter.normalizeFilePath(filePath)),
+				"filePath"		: path,
 				"lastModified"	: fileLastModified
 			}
 		};
 
+		console.log("Synchronizing file msg: " + prepareMsg(msg));
 		_socket.write(prepareMsg(msg));
 	}
 
