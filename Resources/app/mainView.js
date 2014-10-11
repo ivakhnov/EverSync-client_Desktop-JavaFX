@@ -78,6 +78,9 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		var idCounter = 0;
 		var hostIds = file.hostIds;
 
+		// Filter out the ALL empty values ("", null, undefined and 0)
+		file.hostIds = file.hostIds.filter(function(e){return e;});
+
 		function addSeparator() {
 			menuItems.push({ id: idCounter, text: '--'});
 			menuFns.push(function(){});
@@ -95,48 +98,52 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		});
 		idCounter++;
 
-		menuItems.push({ id: idCounter, text: 'Copy to this device', img: 'icon-page', hidden: (hostIds.indexOf(_clientModel.getId()) > -1) });
-		menuFns.push(function() {
-			console.log("copying to this device...");
-		});
-		idCounter++;
+		// Check whether it's a remote file or a local file (does it have hosts). If yes, extend context menu.
+		if (file.hostIds.length > 0) {
 
-		// Filter out your own Id
-		var hostIds = hostIds.filter(function(el) {
-			return el != _clientModel.getId();
-		});
-
-		// Construct an array clients which have a local copy
-		addSeparator();
-		for(var x = 0; x < hostIds.length; x++) {
-			var id = hostIds[x];
-			menuItems.push({
-				id: idCounter, text: 'Open on '+id,
-				img: 'icon-page',
-				disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
-			});
+			menuItems.push({ id: idCounter, text: 'Copy to this device', img: 'icon-page', hidden: (hostIds.indexOf(_clientModel.getId()) > -1) });
 			menuFns.push(function() {
-				_connController.openOnRemote(file.itemLocation);
+				console.log("copying to this device...");
 			});
 			idCounter++;
-		};
-		// Construct an array for clients which don't have a local copy
-		addSeparator();
-		var clientWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
-			return hostIds.indexOf(el) < 0;
-		});
-		for(var x = 0; x < clientWithoutCopy.length; x++) {
-			var id = clientWithoutCopy[x];
-			menuItems.push({
-				id: idCounter, text: 'Copy & open '+id,
-				img: 'icon-page',
-				disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
+
+			// Filter out your own Id
+			var hostIds = hostIds.filter(function(el) {
+				return el != _clientModel.getId();
 			});
-			menuFns.push(function() {
-				//_connController.copyToRemote(file.itemLocation);
-				//_connController.openOnRemote(file.itemLocation);
+
+			// Construct an array clients which have a local copy
+			addSeparator();
+			for(var x = 0; x < hostIds.length; x++) {
+				var id = hostIds[x];
+				menuItems.push({
+					id: idCounter, text: 'Open on '+id,
+					img: 'icon-page',
+					disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
+				});
+				menuFns.push(function() {
+					_connController.openOnRemote(file.itemLocation);
+				});
+				idCounter++;
+			};
+			// Construct an array for clients which don't have a local copy
+			addSeparator();
+			var clientWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
+				return hostIds.indexOf(el) < 0;
 			});
-			idCounter++;
+			for(var x = 0; x < clientWithoutCopy.length; x++) {
+				var id = clientWithoutCopy[x];
+				menuItems.push({
+					id: idCounter, text: 'Copy & open '+id,
+					img: 'icon-page',
+					disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
+				});
+				menuFns.push(function() {
+					//_connController.copyToRemote(file.itemLocation);
+					//_connController.openOnRemote(file.itemLocation);
+				});
+				idCounter++;
+			};
 		};
 
 		return {
@@ -157,16 +164,11 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				_connController.getLinkedItems(file);
 			},
 			function(file) { // Right click function
-				// Filter out the ALL empty values ("", null, undefined and 0)
-				file.hostIds = file.hostIds.filter(function(e){return e;});
-				// Check whether it's a remote file or a local file (does it have hosts). If yes, enable context menu.
-				if (file.hostIds.length > 0) {
-					var menu = constructContextMenu(file);
-					$(file.thisElement).w2menu({
-						items: menu.menuItems,
-						onSelect: function(event) { return menu.menuFns[event.index](); }
-					});
-				}
+				var menu = constructContextMenu(file);
+				$(file.thisElement).w2menu({
+					items: menu.menuItems,
+					onSelect: function(event) { return menu.menuFns[event.index](); }
+				});
 		});
 
 		_fileTreesCntr++;
