@@ -107,7 +107,7 @@ public class ClientSocket {
 		}
 	}
 
-	public void receiveFile(String handshakeMsg, String filePath, int fileSize) {
+	public void receiveFile(String handshakeMsg, int fileSize, String fileName, String filePath) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -123,7 +123,12 @@ public class ClientSocket {
 
 					InputStream inStream = socket.getInputStream();
 					inStream.read(fileByteArray, 0, fileByteArray.length);
-					FileSystem.setFile(filePath, fileByteArray);
+					if(filePath != null && !filePath.isEmpty()) {
+						FileSystem.setFile(filePath, fileByteArray);
+					} else {
+						FileSystem.createAndOpenTempFile(fileName, fileByteArray);
+					}
+					
 
 					socket.close();
 				} catch (IOException e) {

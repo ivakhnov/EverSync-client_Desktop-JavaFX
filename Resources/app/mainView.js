@@ -77,62 +77,73 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		var menuFns = [];
 		var idCounter = 0;
 		var hostIds = file.hostIds;
-
-		// Filter out the ALL empty values ("", null, undefined and 0)
-		file.hostIds = file.hostIds.filter(function(e){return e;});
-
+		var uris = file.uris;
+		var localLocation = file.localLocation;
+		console.log(file);
 		function addSeparator() {
 			menuItems.push({ id: idCounter, text: '--'});
 			menuFns.push(function(){});
 			idCounter++;
 		};
 
-		menuItems.push({ id: idCounter, text: 'Open on this device', icon: 'fa-star' });
+		// Some pre-processing
+		if(!localLocation) {
+			// If we come here, it means that the file comes from the server results, so there is no ONE SINGLE location.
+			// We will try to filter it out, but if that doesn't work, then this means that the file has no copy on this
+			// particular device. So the solution is to copy it here and then open it.
+			var indexLocalHost = hostIds.indexOf(_clientModel.getId());
+			localLocation = (indexLocalHost > -1) ? uris[indexLocalHost] : "";
+		}
+
+		menuItems.push({ id: idCounter, text: 'Open on this device', disabled: (localLocation == "") });
 		menuFns.push(function() {
-			if(file.localLocation !== "") {
-				console.log("Opening file...");
-				FileSystem.openFile(_clientModel.getRootPath() + "/" + file.localLocation);
-			} else {
-				console.log("file downloaden en dan openen..");
-			}
+			console.log("Opening file...");
+			var filePath = _clientModel.getRootPath() + "/" + localLocation;
+			FileSystem.openFile(filePath);
 		});
 		idCounter++;
 
 		// Check whether it's a remote file or a local file (does it have hosts). If yes, extend context menu.
-		if (file.hostIds.length > 0) {
+		if (hostIds.length > 0) {
 
-			menuItems.push({ id: idCounter, text: 'Copy to this device', img: 'icon-page', hidden: (hostIds.indexOf(_clientModel.getId()) > -1) });
+			menuItems.push({ id: idCounter, text: 'Copy & open here', img: 'icon-page', disabled: (localLocation !== "") });
 			menuFns.push(function() {
 				console.log("copying to this device...");
+				var onlineCandidates = hostIds.filter(function(n) {
+					return _clientModel.getConnectedClients().indexOf(n) != -1;
+				});
+				var candidate = onlineCandidates[0];
+				var candidateIndex = hostIds.indexOf(candidate);
+				_connController.copyFromRemoteAndOpen(hostIds[candidateIndex], uris[candidateIndex], file.itemName);
 			});
 			idCounter++;
 
-			// Filter out your own Id
-			var hostIds = hostIds.filter(function(el) {
-				return el != _clientModel.getId();
-			});
-
 			// Construct an array clients which have a local copy
 			addSeparator();
-			for(var x = 0; x < hostIds.length; x++) {
-				var id = hostIds[x];
+			var hostClients = hostIds.filter(function(n) { // filter out the third party services (which are also hosts)
+				return _clientModel.getInstalledClients().indexOf(n) != -1;
+			});
+			for(var x = 0; x < hostClients.length; x++) {
+				// Filter your own (the current client
+				if(hostClients[x] == _clientModel.getId()) continue;
+				var id = hostClients[x];
 				menuItems.push({
 					id: idCounter, text: 'Open on '+id,
 					img: 'icon-page',
 					disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
 				});
 				menuFns.push(function() {
-					_connController.openOnRemote(file.itemLocation);
+					_connController.openOnRemote(id, uris[hostIds.indexOf(id)]);
 				});
 				idCounter++;
 			};
 			// Construct an array for clients which don't have a local copy
 			addSeparator();
-			var clientWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
+			var clientsWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
 				return hostIds.indexOf(el) < 0;
 			});
-			for(var x = 0; x < clientWithoutCopy.length; x++) {
-				var id = clientWithoutCopy[x];
+			for(var x = 0; x < clientsWithoutCopy.length; x++) {
+				var id = clientsWithoutCopy[x];
 				menuItems.push({
 					id: idCounter, text: 'Copy & open '+id,
 					img: 'icon-page',

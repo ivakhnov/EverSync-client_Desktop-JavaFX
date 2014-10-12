@@ -7,6 +7,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -129,7 +130,35 @@ public class FileSystem {
 		}
 	}
 	
-	public void createAndOpenTempFile(String fileName, JSObject fileArrayJsobject) {
-		
+	public static void createAndOpenTempFile(String fileName, byte[] fileByteArray) {
+		try {
+			// The fileName is of the following form:
+			// filename.txt
+			// So here we try to separate the actual file name and the extension
+			int nameEndIndex = fileName.indexOf(".");
+			String name = "";
+			String extension = "";
+			if(nameEndIndex > -1) {
+				name = fileName.substring(0, nameEndIndex);
+				extension = fileName.substring(nameEndIndex + 1);
+			}
+			// Create a temp file
+			File temp = File.createTempFile(fileName, extension); 
+			System.err.println("Temp file created: " + temp.getAbsolutePath());
+			// Open a handle to it
+			RandomAccessFile fh = new RandomAccessFile (temp, "rw");
+			try {
+				// Writing data to the file
+				fh.write(fileByteArray);
+			} finally {
+				// Close the file
+				fh.close();
+				// Opening the file
+				Desktop.getDesktop().open(temp);
+				temp.deleteOnExit();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

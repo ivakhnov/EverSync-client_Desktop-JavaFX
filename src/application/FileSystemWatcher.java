@@ -136,7 +136,7 @@ public class FileSystemWatcher extends FileSystem {
 				_webEngine.executeScript("window." + _callback + "('" + 
 						eventKind.name() +"','"+ 
 						fileName +"','"+
-						filePath +"','"+ 
+						filePath.replace("\\", "/") +"','"+ 
 						lastModified + 
 					"');");
 			}

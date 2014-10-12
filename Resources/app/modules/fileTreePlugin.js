@@ -25,9 +25,8 @@ define(function() {
 			var fileUri = file["uri"];
 			var fileHostId = file["hostId"];
 
-			var result = results.filter(function(obj) {
+			var result = results.filter(function(obj) { //(obj["uri"] == fileUri) &&
 				return ((obj["name"] == fileName) &&
-						(obj["uri"] == fileUri) &&
 						(obj["hostType"] == "EverSyncClient"));
 			});
 			// The filter returns an array, obviously
@@ -35,9 +34,14 @@ define(function() {
 				var currHostId = file["hostId"];
 				delete file["hostId"]; // Then delete one single id
 				file["hostIds"] = [ currHostId ]; // And replace it with an array of id's
+				// do the same for fileUri's
+				var currUri = file["uri"];
+				delete file["uri"];
+				file["uris"] = [ currUri ];
 				results.push(file);
 			} else {
 				result[0]["hostIds"].push(fileHostId);
+				result[0]["uris"].push(fileUri);
 			}
 		}
 		return results;
@@ -71,12 +75,16 @@ return {
 
 				var fullPath = el["uri"] || "";
 				var hostIds = el["hostIds"] || "";
-
-				// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
-				var extension = el["extension"] || fullPath.split(".").pop(); // *.tar.gz will be just *.gz
+				var uris = el["uris"] || "";
 
 				if (plugin == null) items += '<li id='+parentID+'_'+i+' class="plugin_'+i+' directory collapsed"><a href="#" rel="'+i+'">'+i+'</a></li>';
-				else items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" >'+name+'</a></li>';
+				else {
+					// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
+					var extension = el["extension"] || uris[0].split(".").pop(); // *.tar.gz will be just *.gz
+					// take the first (or any other) element, and then take the extension of it.
+
+					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" >'+name+'</a></li>';
+				}
 			}
 		}
 

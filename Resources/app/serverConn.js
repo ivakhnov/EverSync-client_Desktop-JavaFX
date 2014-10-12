@@ -116,27 +116,35 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	 * go through the handshake procedure.
 	 * Note: "preparation" means here that the server requests the client
 	 * to download a file!
+	 * Also note that the filePath might be undefined, meaning that the msg doesn't contain a file path!!
+	 * In this case, the filePath will be set to null (instead of undefined) and sent as a parameter to the
+	 * receiveFile method as it would happen in case the filePath was given. However, the receiveFile will
+	 * create a temporary file in case the filePath is null. In this case, the temp file will also be opened
+	 * immediately, since it's a temp file and is stored nowhere.
 	 */
 	function downloadPreparation(msg) {
-		filePath = _clientModel.getRootPath() + "/" + msg["filePath"];
+		filePath = msg["filePath"] ? _clientModel.getRootPath() + "/" + msg["filePath"] : null;
 		fileSize = msg["fileSize"];
+		fileName = msg["fileName"];
 		handshakeMsg = {
 			"msgType"	: "Handshake Response",
 			"clientId"	: _clientModel.getId()
 		};
 		FileSystemWatcher.ignoreEventOn(filePath);
-		_socket.receiveFile(prepareMsg(handshakeMsg), filePath, parseInt(fileSize));
+		_socket.receiveFile(prepareMsg(handshakeMsg), parseInt(fileSize), fileName, filePath);
 	};
 
 	/**
 	 * Sends a request to the server to open the file on the device where it is stored
 	 */
-	function openOnRemote(fileLocation) {
+	function openOnRemote(hostId, fileRemoteLocation, fileRemoteName) {
 		req = {
 			"msgType"		: "Normal Request",
 			"methodName"	: "openRemotely",
 			"params"		: {
-				"filePath"	: fileLocation
+				"hostId"	: hostId,
+				"filePath"	: fileRemoteLocation,
+				"fileName"	: fileRemoteName
 			}
 		};
 		_socket.write(prepareMsg(req));
@@ -157,43 +165,26 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	/**
-	 * Handles the method invocation on the client, which is triggered by the server.
-	 * Processes the messages of the type "Normal Response".
-	 */
-	function messageReflect(msg) {
-		var method = msg["methodName"];
-		switch(method) {
-			case "showLinkedItems":
-				console.log("showLinkedItems();");
-				showLinkedItems(msg["items"]);
-				break;
-			case "uploadFile":
-				console.log("uploadFile();");
-				uploadFile(msg["filePath"]);
-				break;
-			case "openFile":
-				console.log("openFile()");
-				FileSystem.openFile(msg["filePath"]);
-				break;
-			case "setInstalledClients":
-				console.log("setInstalledClients();" + msg["clients"]);
-				setInstalledClients(msg["clients"]);
-				break;
-			case "setConnectedClients":
-				console.log("setConnectedClients();" + msg["clients"]);
-				setConnectedClients(msg["clients"]);
-				break;
-			default:
-				console.log("Unrecognized method requested: " + method);
-		};
-	};
-
-	/**
 	 * Function to be triggered after the synchronization is finished
 	 */
 	function syncResponse() {
 		console.log("Synchronized successfully!");
 		return "Synchronized successfully!";
+	};
+
+	/**
+	 * Sends a request to the server for to get a file from a remote client or service.
+	 */
+	function copyFromRemoteAndOpen(hostId, fileUri) {
+		var req = {
+			"msgType"		: "Normal Request",
+			"methodName"	: "copyFromRemoteAndOpen",
+			"params"		: {
+				"hostId"	: hostId,
+				"fileUri"	: fileUri
+			}
+		};
+		_socket.write(prepareMsg(req));
 	};
 
 	/**
@@ -276,6 +267,38 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		};
 	};
 
+	/**
+	 * Handles the method invocation on the client, which is triggered by the server.
+	 * Processes the messages of the type "Normal Response".
+	 */
+	function messageReflect(msg) {
+		var method = msg["methodName"];
+		switch(method) {
+			case "showLinkedItems":
+				console.log("showLinkedItems();");
+				showLinkedItems(msg["items"]);
+				break;
+			case "uploadFile":
+				console.log("uploadFile();");
+				uploadFile(msg["filePath"]);
+				break;
+			case "openFile":
+				console.log("openFile()");
+				FileSystem.openFile(_clientModel.getRootPath() + "/" + msg["filePath"]);
+				break;
+			case "setInstalledClients":
+				console.log("setInstalledClients();" + msg["clients"]);
+				setInstalledClients(msg["clients"]);
+				break;
+			case "setConnectedClients":
+				console.log("setConnectedClients();" + msg["clients"]);
+				setConnectedClients(msg["clients"]);
+				break;
+			default:
+				console.log("Unrecognized method requested: " + method);
+		};
+	};
+
 	function connect(clientModel, mainView, onConnectCallback) {
 		_clientModel = clientModel;
 		_mainView = mainView;
@@ -303,7 +326,9 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	return {
 		connect : connect,
 		getLinkedItems : getLinkedItems,
-		startSyncing : startSyncing
+		startSyncing : startSyncing,
+		openOnRemote : openOnRemote,
+		copyFromRemoteAndOpen : copyFromRemoteAndOpen
 	};
 
 });

@@ -47,25 +47,31 @@ if(jQuery) (function($){
 		var fileTreeID = part[1];
 		// Now fileTreeID contains the ID
 
-		var rel = element.attr('rel');
+		var rel = element.attr('rel') || "";
 		// Drop the extension
-		var lastpos = rel.lastIndexOf(".");
-		relWithoutExtension = rel.substring(0, lastpos);
+		///var lastpos = rel.lastIndexOf(".");
+		///relWithoutExtension = rel.substring(0, lastpos);
 		// Or the name of the item is already in the rel element (in case the name and the item is actually received from
 		// the server). Fro example:
 		//    "itemName.pluginname"
 		// Or the rel element is actually a local path to the item, for example:
 		//    "/Users/username/Docuemnts/somefolder/item.ext"
-		var relItems = relWithoutExtension.split(/\/|\\/);
+		///var relItems = relWithoutExtension.split(/\/|\\/);
+		var relItems = rel.split(/\/|\\/);
 		var itemName = relItems[relItems.length - 1];
+
+		var hostIds = element.attr('hostIds') || "";
+		hostIds = hostIds.split(',');
+		hostIds = hostIds.filter(function(e){return e;}); // Filter out the ALL empty values ("", null, undefined and 0)
+
+		var uris = element.attr('uris') || ""; // uris on remote hosts
+		uris = uris.split(',');
+		uris = uris.filter(function(e){return e;}); // Filter out the ALL empty values ("", null, undefined and 0)
 
 		// The item location comes after the file tree id, it one before last.
 		// Location means: local file system or the name of the plugin for an external service
 		var loc = part[part.length - 2];
-		var itemLocation = loc + ":" + rel;
-
-		var hostIds = element.attr('hostIds') || "";
-		hostIds = hostIds.split(',');;
+		var itemLocation = loc + ":" + (rel ? rel : ( hostIds[0] + ":" + uris[0]));
 
 		// "fileTreeID" 		: id of the file tree where this item is showed
 		// "itemLocation"		: the full path to the location of a file (including the indication of the device)
@@ -77,6 +83,7 @@ if(jQuery) (function($){
 			"localLocation"		: rel,
 			"itemName"			: itemName,
 			"hostIds"			: hostIds,
+			"uris"				: uris,
 			"thisElement"		: element
 		};
 		callback(itemInfo);
