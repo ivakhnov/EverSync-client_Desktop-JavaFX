@@ -6,3 +6,7 @@ installed_plugins/
 # Ignore the SQLite database
 
 *.sqlite
+
+# Ignore log files
+
+*.log

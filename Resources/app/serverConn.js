@@ -61,7 +61,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				}
 			}
 		});
-		// Trigger the function which has to be executed after a connection.
+		// Trigger the function which has to be executed after the connection.
 		onConnect();
 	};
 
