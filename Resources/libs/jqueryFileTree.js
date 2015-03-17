@@ -57,8 +57,7 @@ if(jQuery) (function($){
 		// Or the rel element is actually a local path to the item, for example:
 		//    "/Users/username/Docuemnts/somefolder/item.ext"
 		///var relItems = relWithoutExtension.split(/\/|\\/);
-		var relItems = rel.split(/\/|\\/);
-		var itemName = relItems[relItems.length - 1];
+		var itemName = element.attr('fileName') || "";
 
 		var hostIds = element.attr('hostIds') || "";
 		hostIds = hostIds.split(',');

@@ -39,7 +39,7 @@ return {
 				var id = parentID+'_'+fileSystemIdentifier+'_'+i;
 
 				if (el.isDirectory()) folders += '<li id='+id+' class="directory collapsed"><a href="#" rel="'+fullPath+'">'+name+'</a></li>';
-				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+relPath+'">'+name+'</a></li>';
+				else files += '<li id='+id+' class="file ext_'+extension+'"><a href="#" rel="'+relPath+'" fileName="'+name+'">'+name+'</a></li>';
 			}
 		}
 

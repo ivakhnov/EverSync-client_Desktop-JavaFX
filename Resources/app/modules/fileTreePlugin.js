@@ -83,7 +83,7 @@ return {
 					var extension = el["extension"] || uris[0].split(".").pop(); // *.tar.gz will be just *.gz
 					// take the first (or any other) element, and then take the extension of it.
 
-					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" >'+name+'</a></li>';
+					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+name+'</a></li>';
 				}
 			}
 		}
