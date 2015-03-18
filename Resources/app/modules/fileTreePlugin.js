@@ -79,8 +79,7 @@ return {
 
 				if (plugin == null) items += '<li id='+parentID+'_'+i+' class="plugin_'+i+' directory collapsed"><a href="#" rel="'+i+'">'+i+'</a></li>';
 				else {
-					// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
-					var extension = el["extension"] || uris[0].split(".").pop(); // *.tar.gz will be just *.gz
+					var extension = el["extension"] || name.split(".").pop(); // *.tar.gz will be just *.gz
 					// take the first (or any other) element, and then take the extension of it.
 
 					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+name+'</a></li>';
