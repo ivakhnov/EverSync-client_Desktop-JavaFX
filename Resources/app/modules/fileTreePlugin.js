@@ -22,6 +22,7 @@ define(function() {
 		for(var x = 0; x < dirFiles.length; x++) {
 			var file = dirFiles[x];
 			var fileName = file["name"];
+			var fileNameLabel = file["nameLabel"];
 			var fileUri = file["uri"];
 			var fileHostId = file["hostId"];
 
@@ -32,11 +33,11 @@ define(function() {
 			// The filter returns an array, obviously
 			if(result.length == 0) {
 				var currHostId = file["hostId"];
-				delete file["hostId"]; // Then delete one single id
+				//delete file["hostId"]; // Then delete one single id
 				file["hostIds"] = [ currHostId ]; // And replace it with an array of id's
 				// do the same for fileUri's
 				var currUri = file["uri"];
-				delete file["uri"];
+				//delete file["uri"];
 				file["uris"] = [ currUri ];
 				results.push(file);
 			} else {
@@ -79,10 +80,17 @@ return {
 
 				if (plugin == null) items += '<li id='+parentID+'_'+i+' class="plugin_'+i+' directory collapsed"><a href="#" rel="'+i+'">'+i+'</a></li>';
 				else {
-					var extension = el["extension"] || name.split(".").pop(); // *.tar.gz will be just *.gz
-					// take the first (or any other) element, and then take the extension of it.
+					var extension = el["extension"] || fullPath.split(".").pop() || name.split(".").pop(); // *.tar.gz will be just *.gz
+					// The last element of an id is the extension of the entity (comment, note, ...)
+					// The corresponding icon of the extension is defined in the installation CSS of the plugin (server side)
+					var nameLabel = el["nameLabel"] || name;
 
-					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+name+'</a></li>';
+console.log("++++++++++++++++++++");
+console.log(el);
+console.log(fullPath);
+console.log("++++++++++++++++++++");
+
+					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+nameLabel+'</a></li>';
 				}
 			}
 		}

@@ -61,11 +61,11 @@ if(jQuery) (function($){
 
 		var hostIds = element.attr('hostIds') || "";
 		hostIds = hostIds.split(',');
-		hostIds = hostIds.filter(function(e){return e;}); // Filter out the ALL empty values ("", null, undefined and 0)
+		hostIds = hostIds.filter(function(e){return e;}); // Filter out ALL empty values ("", null, undefined and 0)
 
 		var uris = element.attr('uris') || ""; // uris on remote hosts
 		uris = uris.split(',');
-		uris = uris.filter(function(e){return e;}); // Filter out the ALL empty values ("", null, undefined and 0)
+		uris = uris.filter(function(e){return e;}); // Filter out ALL empty values ("", null, undefined and 0)
 
 		// The item location comes after the file tree id, it one before last.
 		// Location means: local file system or the name of the plugin for an external service
