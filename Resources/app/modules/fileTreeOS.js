@@ -34,7 +34,7 @@ return {
 				var name = fullPath.replace(/^.*[\\\/]/, '');
 
 				// Get the extension, NOTE that this will just give the file path if the file has no extension!!!
-				var extension = fullPath.split(".").pop(); // *.tar.gz will be just *.gz
+				var extension = pathAdapter.getFileExtension(fullPath); // *.tar.gz will be just *.gz
 
 				var id = parentID+'_'+fileSystemIdentifier+'_'+i;
 

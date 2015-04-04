@@ -13,7 +13,7 @@
 //
 
 
-define(function() {
+define(["modules/pathAdapterOs"], function(pathAdapter) {
 
 	// Private
 
@@ -80,7 +80,8 @@ return {
 
 				if (plugin == null) items += '<li id='+parentID+'_'+i+' class="plugin_'+i+' directory collapsed"><a href="#" rel="'+i+'">'+i+'</a></li>';
 				else {
-					var extension = el["extension"] || fullPath.split(".").pop() || name.split(".").pop(); // *.tar.gz will be just *.gz
+					var extension = el["extension"] || pathAdapter.getFileExtension(fullPath) || pathAdapter.getFileExtension(name); 
+					// *.tar.gz will be just *.gz
 					// The last element of an id is the extension of the entity (comment, note, ...)
 					// The corresponding icon of the extension is defined in the installation CSS of the plugin (server side)
 					var nameLabel = el["nameLabel"] || name;
@@ -88,6 +89,7 @@ return {
 console.log("++++++++++++++++++++");
 console.log(el);
 console.log(fullPath);
+console.log(name);
 console.log("++++++++++++++++++++");
 
 					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+nameLabel+'</a></li>';

@@ -50,6 +50,20 @@ define(["clientModel"], function(clientModel) {
 			var offset = normalizedFilePath.indexOf(rootPath);
 			return normalizedFilePath.substring(offset + rootPath.length + 1);
 			// +1 crop off the first slash, otherwise the result would be something like:  "/textfile.txt"
+		},
+
+		// Help function to get a file extension. The given fileName can actually be a 
+		// full concrete path to the file if and only if none of the folders of this path
+		// contain '.' in them.
+		// So, using for full concrete paths is discouraged.
+		getFileExtension: function(fileName) {
+			var a = fileName.split(".");
+			if( a.length === 1 || ( a[0] === "" && a.length === 2 ) ) {
+			    return null;
+			}
+			// If a.length is one, it's a visible file with no extension ie. file
+			// If a[0] === "" and a.length === 2 it's a hidden file with no extension, for example .htaccess
+			return a.pop();
 		}
 	};
 });
