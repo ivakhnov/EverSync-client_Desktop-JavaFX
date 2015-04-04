@@ -49,14 +49,15 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	/**
 	 * Help methods
 	 */
-	initFileTree = function (id, controller, root, content, leftClickFn, rightClickFn) {
+	initFileTree = function (id, controller, root, content, autoExpand, leftClickFn, rightClickFn) {
 		$(id).fileTree({
 			connector: controller,
 			root: root,
 			content : content,
 			folderEvent: 'click',
 			expandSpeed: 200,
-			collapseSpeed: 200
+			collapseSpeed: 200,
+			autoExpand: autoExpand
 		}, leftClickFn, rightClickFn);
 
 	};
@@ -165,14 +166,14 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		};
 	};
 
-	function fileTreeRecursion (linkedFiles, root) {
+	function fileTreeRecursion (linkedFiles, root, autoExpand) {
 		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root))
 			return;
 
 		$('#layout_mainLayout_panel_main > .w2ui-panel-content')
 			.append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
 
-		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles,
+		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, autoExpand,
 			function(file) { // Left click function
 				// alert(JSON.stringify(file));
 				pruneSelectedFileTrees(parseInt(file.fileTreeID));
@@ -195,7 +196,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		// For the initial file tree column we read the data from the local file system,
 		// so this is the appropriate plugin to parse such data.
 		_fileTreeModule = 'modules/fileTreeOS';
-		fileTreeRecursion(null, clientModel.getRootPath());
+		fileTreeRecursion(null, clientModel.getRootPath(), false);
 		// All the next data will be received from the server.
 		_fileTreeModule = 'modules/fileTreePlugin';
 	}

@@ -16,6 +16,7 @@
 //           expandSpeed    - default = 500 (ms); use -1 for no animation
 //           collapseSpeed  - default = 500 (ms); use -1 for no animation
 //           expandEasing   - easing function to use on expand (optional)
+//			 autoExpand 	- automatically expanding the folders (nested)
 //           collapseEasing - easing function to use on collapse (optional)
 //           multiFolder    - whether or not to limit the browser to one subfolder at a time
 //           loadMessage    - Message to display while initial tree loads (can be HTML)
@@ -99,6 +100,7 @@ if(jQuery) (function($){
 			if( o.folderEvent == undefined ) o.folderEvent = 'click';
 			if( o.fileEvent == undefined ) o.fileEvent = 'contextmenu'; // right click
 			if( o.expandSpeed == undefined ) o.expandSpeed = 500;
+			if( o.autoExpand == undefined) o.autoExpand = true;
 			if( o.collapseSpeed == undefined ) o.collapseSpeed = 500;
 			if( o.expandEasing == undefined ) o.expandEasing = null;
 			if( o.collapseEasing == undefined ) o.collapseEasing = null;
@@ -136,6 +138,12 @@ if(jQuery) (function($){
 							if( o.root == t ) $(c).find('UL:hidden').show();
 							else $(c).find('UL:hidden').slideDown({ duration: o.expandSpeed, easing: o.expandEasing });
 							bindTree(c);
+							if (o.autoExpand) {
+								$(c).find(".directory.collapsed").each(function (i, f) {
+									$(f).removeClass('collapsed').addClass('expanded');
+									showTree($(f), $(f).children().attr('rel'));
+								});
+							}
 						});
 					});
 				}

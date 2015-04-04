@@ -55,9 +55,6 @@ return {
 		var plugin = params.root;
 		var content = params.content;
 
-		console.log("TEEEEST: " + JSON.stringify(params));
-		console.log("TTTTTST: " + parentID);
-
 		// Whether showing the list of all the plugins (initial rendering of a file tree),
 		// or showing the linked files of one single plugin.
 		// (Initially all the files from the request are like collapsed folders. Each 'folder' can be expanded
@@ -91,7 +88,6 @@ return {
 			}
 		}
 
-console.log(items);
 		var res = '<ul class="jqueryFileTree" style="display: none;">';
 		res += items;
 		res += '</ul>';
