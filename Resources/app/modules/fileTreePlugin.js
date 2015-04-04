@@ -86,12 +86,6 @@ return {
 					// The corresponding icon of the extension is defined in the installation CSS of the plugin (server side)
 					var nameLabel = el["nameLabel"] || name;
 
-console.log("++++++++++++++++++++");
-console.log(el);
-console.log(fullPath);
-console.log(name);
-console.log("++++++++++++++++++++");
-
 					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+nameLabel+'</a></li>';
 				}
 			}

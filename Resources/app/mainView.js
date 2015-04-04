@@ -166,7 +166,11 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	function fileTreeRecursion (linkedFiles, root) {
-		$('#layout_mainLayout_panel_main > .w2ui-panel-content').append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
+		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root))
+			return;
+
+		$('#layout_mainLayout_panel_main > .w2ui-panel-content')
+			.append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
 
 		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles,
 			function(file) { // Left click function
