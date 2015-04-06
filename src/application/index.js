@@ -5,7 +5,6 @@
 requirejs.config({
 	"baseUrl": "../../Resources/app",
 	"paths": {
-		"os"	: "../../Resources/TideSDK",
 		"libs"	: "../../Resources/libs"
 	}
 });

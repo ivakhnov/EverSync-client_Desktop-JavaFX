@@ -188,6 +188,29 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	/**
+	 * Sends a request to the server to ask a plugin how to open this particular item.
+	 * After sending the request, the client 'forgets' about it, and its up to a plugin to 
+	 * decide how to open and to trigger the actual open-function on the client.
+	 * @param  {[type]} hostType [type of the host of the selected file: EverSyncClient / ExternalService]
+	 * @param  {[type]} hostIds  [Id of the host of the selected file]
+	 * @param  {[type]} uris     [Uri of the selected file]
+	 * @return {[type]}          [NONE]
+	 */
+	function askPluginToOpen(hostType, hostId, uri) {
+		var msg = {
+			"msgType"		: "Normal Request",
+			"methodName"	: "askPluginToOpen",
+			"params"		: {
+				"hostType"		: hostType,
+				"hostId"		: hostId,
+				"uri"			: uri
+			}
+		};
+
+		_socket.write(prepareMsg(msg));
+	};
+
+	/**
 	 * Synchronization if the local file system (or its changes) with to the server
 	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
 	 */
@@ -286,6 +309,10 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				console.log("openFile()");
 				FileSystem.openFile(_clientModel.getRootPath() + "/" + msg["filePath"]);
 				break;
+			case "openUrlInBrowser":
+				console.log("openUrlInBrowser")
+				FileSystem.openUrlInBrowser(msg["url"]);
+				break;
 			case "setInstalledClients":
 				console.log("setInstalledClients();" + msg["clients"]);
 				setInstalledClients(msg["clients"]);
@@ -328,6 +355,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		getLinkedItems : getLinkedItems,
 		startSyncing : startSyncing,
 		openOnRemote : openOnRemote,
+		askPluginToOpen : askPluginToOpen,
 		copyFromRemoteAndOpen : copyFromRemoteAndOpen
 	};
 

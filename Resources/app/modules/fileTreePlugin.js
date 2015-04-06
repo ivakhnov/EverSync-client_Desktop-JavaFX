@@ -22,7 +22,6 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		for(var x = 0; x < dirFiles.length; x++) {
 			var file = dirFiles[x];
 			var fileName = file["name"];
-			var fileNameLabel = file["nameLabel"];
 			var fileUri = file["uri"];
 			var fileHostId = file["hostId"];
 
@@ -81,9 +80,19 @@ return {
 					// *.tar.gz will be just *.gz
 					// The last element of an id is the extension of the entity (comment, note, ...)
 					// The corresponding icon of the extension is defined in the installation CSS of the plugin (server side)
+					
 					var nameLabel = el["nameLabel"] || name;
+					var hostType = el["hostType"];
 
-					items += '<li id='+parentID+'_'+i+' class="file ext_'+extension+'"><a href="#" rel="'+ fullPath +'" hostIds="'+ hostIds +'" uris="'+ uris +'" fileName="'+name+'">'+nameLabel+'</a></li>';
+					items += '<li id='+
+						parentID+'_'+i+' class="file ext_'+
+						extension+'"><a href="#" rel="'+ 
+						fullPath +'" hostType="'+ 
+						hostType +'" hostIds="'+ 
+						hostIds +'" uris="'+ 
+						uris +'" fileName="'+
+						name+'">'+
+						nameLabel+'</a></li>';
 				}
 			}
 		}
