@@ -44,6 +44,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	var _connController = null;
 	var _clientModel = null;
 	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
+	var _localSelectedFile = null; // Selected file in the very first file tree
 
 
 	/**
@@ -68,6 +69,12 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		}
 		_fileTreesCntr = startingCntr + 1;
 	};
+
+	function updateLocalSelection (file) {
+		if (parseInt(file.fileTreeID) === 1) {
+			_localSelectedFile = file;
+		}
+	}
 
 	/**
 	 * Construct the context menu which appears when one right clicks on a file.
@@ -112,7 +119,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 
 			// Check whether it's a remote file or a local file (does it have hosts). If yes, extend context menu.
 			if (hostIds.length > 0) {
-				
+
 				// Construct an array clients which have a local copy
 				addSeparator();
 				var hostClients = hostIds.filter(function(n) { // filter out the third party services (which are also hosts)
@@ -172,6 +179,9 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			function(file) { // Left click function
 				// alert(JSON.stringify(file));
 				pruneSelectedFileTrees(parseInt(file.fileTreeID));
+				updateLocalSelection(file);
+				if (file.hostType === "EverSyncClient" && _localSelectedFile && _localSelectedFile.itemName === file.itemName)
+					return;
 				_connController.getLinkedItems(file);
 			},
 			function(file) { // Right click function
