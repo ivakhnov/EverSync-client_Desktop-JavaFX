@@ -44,7 +44,8 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	var _connController = null;
 	var _clientModel = null;
 	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
-	var _localSelectedFile = null; // Selected file in the very first file tree
+	var _rootSelection = null; // Selected file in the very first file tree
+	var _leafSelection = null; // Selected file in the very last file tree
 
 
 	/**
@@ -70,10 +71,27 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		_fileTreesCntr = startingCntr + 1;
 	};
 
-	function updateLocalSelection (file) {
+	function updateRootSelection (file) {
 		if (parseInt(file.fileTreeID) === 1) {
-			_localSelectedFile = file;
+			_rootSelection = file;
 		}
+	}
+
+	function updateLeafSelection (file) {
+		if (parseInt(file.fileTreeID) > 1) {
+			_leafSelection = file;
+		}
+	}
+
+	function createFileTree() {
+		$('#layout_mainLayout_panel_main > .w2ui-panel-content')
+			.append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
+	}
+
+	function searchLeafSelectionLocally() {
+		return $('#layout_mainLayout_panel_main')
+				.find('#fileTree_1')
+				.find('a[fileName="'+ _leafSelection.itemName +'"]');
 	}
 
 	/**
@@ -169,18 +187,24 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	function fileTreeRecursion (linkedFiles, root, autoExpand) {
-		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root))
+		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root)) {
+			if (_rootSelection.itemName === _leafSelection.itemName)
+				return;
+			var localFile = searchLeafSelectionLocally();
+			if (localFile)
+				localFile.click();
 			return;
+		};
 
-		$('#layout_mainLayout_panel_main > .w2ui-panel-content')
-			.append('<div id="fileTree_'+ _fileTreesCntr +'" class="treeContainer"></div>');
+		createFileTree();
 
 		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, autoExpand,
 			function(file) { // Left click function
 				// alert(JSON.stringify(file));
 				pruneSelectedFileTrees(parseInt(file.fileTreeID));
-				updateLocalSelection(file);
-				if (file.hostType === "EverSyncClient" && _localSelectedFile && _localSelectedFile.itemName === file.itemName)
+				updateRootSelection(file);
+				updateLeafSelection(file);
+				if (file.hostType === "EverSyncClient" && _rootSelection && _rootSelection.itemName === file.itemName)
 					return;
 				_connController.getLinkedItems(file);
 			},
