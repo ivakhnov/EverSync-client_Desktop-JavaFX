@@ -199,8 +199,7 @@ define(["modules/file"], function(FileParser) {
 				localFileItem.click();
 			} else {
 				_localImitation = true;
-				//var localImitatedFile = FileParser.makeLocal(_leafSelection);
-				_connController.getLinkedItems(localImitatedFile);
+				_connController.getLocalItems(localImitatedFile);
 			}
 			return;
 		};

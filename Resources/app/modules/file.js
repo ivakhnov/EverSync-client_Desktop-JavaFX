@@ -66,9 +66,6 @@ define(function(require) {
 			"uris"				: uris,
 			"thisElement"		: element
 		};
-		console.log("!!!!!!!!!!!!!!!!!!!!!!!");
-		console.log(itemInfo);
-		console.log("!!!!!!!!!!!!!!!!!!!!!!!");
 		callback(itemInfo);
 	};
 

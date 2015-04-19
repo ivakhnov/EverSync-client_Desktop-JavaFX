@@ -71,7 +71,8 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	 * {
 	 * 		"fileTreeID" 		: x,
 	 * 		"itemLocation"		: x,
-	 * 		"itemName"			: x
+	 * 		"itemName"			: x,
+	 * 		... (see modules/file)
 	 * 	};
 	 */
 	function getLinkedItems(item) {
@@ -81,6 +82,21 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			"params"		: {
 				"fileName"	: item.itemName,
 				"filePath"	: item.itemLocation
+			}
+		};
+		_socket.write(prepareMsg(req));
+	};
+
+	/**
+	 * Reqest to the server to return a list of files from other clients (no third party services)
+	 * with the same file name.
+	 */
+	function getLocalItemsByName(item) {
+		var req = {
+			"msgType"		: "Normal Request",
+			"methodName"	: "getLocalFilesByName",
+			"params"		: {
+				"fileName"	: item.itemName
 			}
 		};
 		_socket.write(prepareMsg(req));
@@ -353,6 +369,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	return {
 		connect : connect,
 		getLinkedItems : getLinkedItems,
+		getLocalItemsByName : getLocalItemsByName,
 		startSyncing : startSyncing,
 		openOnRemote : openOnRemote,
 		askPluginToOpen : askPluginToOpen,
