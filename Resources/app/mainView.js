@@ -2,7 +2,7 @@
  * The main code file
  */
 
-define(["modules/pathAdapterOs"], function(pathAdapter) {
+define(["modules/file"], function(FileParser) {
 	$(document).ready(function() {
 		/**
 		 * Main initializations
@@ -46,6 +46,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
 	var _rootSelection = null; // Selected file in the very first file tree
 	var _leafSelection = null; // Selected file in the very last file tree
+	var _localImitation = false; // Prevent infinite loops while navigating items on clients as local files
 
 
 	/**
@@ -187,15 +188,24 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	function fileTreeRecursion (linkedFiles, root, autoExpand) {
+		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root) && _localImitation)
+			return; // No results available, not on remote services, not on clients.
+
 		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root)) {
 			if (_rootSelection.itemName === _leafSelection.itemName)
 				return;
-			var localFile = searchLeafSelectionLocally();
-			if (localFile)
-				localFile.click();
+			var localFileItem = searchLeafSelectionLocally();
+			if (localFileItem) {
+				localFileItem.click();
+			} else {
+				_localImitation = true;
+				//var localImitatedFile = FileParser.makeLocal(_leafSelection);
+				_connController.getLinkedItems(localImitatedFile);
+			}
 			return;
 		};
 
+		_localImitation = false;
 		createFileTree();
 
 		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, autoExpand,
@@ -235,6 +245,4 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		init : init,
 		fileTreeRecursion : fileTreeRecursion
 	};
-
-
 });
