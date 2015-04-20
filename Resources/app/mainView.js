@@ -107,23 +107,15 @@ define(["modules/file"], function(FileParser) {
 		var hostIds = file.hostIds;
 		var uris = file.uris;
 		var localLocation = file.localLocation;
-		console.log(file);
 		function addSeparator() {
 			menuItems.push({ id: idCounter, text: '--'});
 			menuFns.push(function(){});
 			idCounter++;
 		};
 
-		// Some pre-processing
-		if(!localLocation) {
-			// If we come here, it means that the file comes from the server results, so there is no ONE SINGLE location.
-			// We will try to filter it out, but if that doesn't work, then this means that the file has no copy on this
-			// particular device. So the solution is to copy it here and then open it.
-			var indexLocalHost = hostIds.indexOf(_clientModel.getId());
-			localLocation = (indexLocalHost > -1) ? uris[indexLocalHost] : "";
-		}
+		var canOpenLocal = (hostIds.length == 0) || (hostIds.indexOf(_clientModel.getId()) != -1);
 
-		menuItems.push({ id: idCounter, text: 'Open on this device', disabled: (localLocation == "") });
+		menuItems.push({ id: idCounter, text: 'Open on this device', disabled: !canOpenLocal });
 		if (hostType && hostType != 'EverSyncClient') {
 			menuFns.push(function() {
 				_connController.askPluginToOpen(hostType, hostIds[0], uris[0]);
@@ -139,13 +131,25 @@ define(["modules/file"], function(FileParser) {
 			// Check whether it's a remote file or a local file (does it have hosts). If yes, extend context menu.
 			if (hostIds.length > 0) {
 
+				menuItems.push({ id: idCounter, text: 'Copy & open here', img: 'icon-page', disabled: canOpenLocal });
+				menuFns.push(function() {
+					console.log("copying to this device...");
+					var onlineCandidates = hostIds.filter(function(n) {
+						return _clientModel.getConnectedClients().indexOf(n) != -1;
+					});
+					var candidate = onlineCandidates[0];
+					var candidateIndex = hostIds.indexOf(candidate);
+					_connController.copyFromRemoteAndOpen(hostIds[candidateIndex], uris[candidateIndex], file.itemName);
+				});
+				idCounter++;
+
 				// Construct an array clients which have a local copy
 				addSeparator();
 				var hostClients = hostIds.filter(function(n) { // filter out the third party services (which are also hosts)
 					return _clientModel.getInstalledClients().indexOf(n) != -1;
 				});
 				for(var x = 0; x < hostClients.length; x++) {
-					// Filter your own (the current client
+					// Filter your own (the current client)
 					if(hostClients[x] == _clientModel.getId()) continue;
 					var id = hostClients[x];
 					menuItems.push({
@@ -158,24 +162,26 @@ define(["modules/file"], function(FileParser) {
 					});
 					idCounter++;
 				};
-				// Construct an array for clients which don't have a local copy
-				addSeparator();
-				var clientsWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
-					return hostIds.indexOf(el) < 0;
-				});
-				for(var x = 0; x < clientsWithoutCopy.length; x++) {
-					var id = clientsWithoutCopy[x];
-					menuItems.push({
-						id: idCounter, text: 'Copy to & open on '+id,
-						img: 'icon-page',
-						disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
-					});
-					menuFns.push(function() {
-						//_connController.copyToRemote(file.itemLocation);
-						//_connController.openOnRemote(file.itemLocation);
-					});
-					idCounter++;
-				};
+				// // Construct an array for clients which don't have a local copy
+				// addSeparator();
+				// var clientsWithoutCopy = _clientModel.getInstalledClients().filter(function(el) {
+				// 	return hostIds.indexOf(el) < 0;
+				// });
+				// for(var x = 0; x < clientsWithoutCopy.length; x++) {
+				// 	// Filter your own (the current client)
+				// 	if(clientsWithoutCopy[x] == _clientModel.getId()) continue;
+				// 	var id = clientsWithoutCopy[x];
+				// 	menuItems.push({
+				// 		id: idCounter, text: 'Copy to & open on '+id,
+				// 		img: 'icon-page',
+				// 		disabled: (_clientModel.getConnectedClients().indexOf(id) < 0)
+				// 	});
+				// 	menuFns.push(function() {
+				// 		//_connController.copyToRemote(file.itemLocation);
+				// 		//_connController.openOnRemote(file.itemLocation);
+				// 	});
+				// 	idCounter++;
+				// };
 			};
 		};
 
@@ -194,17 +200,17 @@ define(["modules/file"], function(FileParser) {
 		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root)) {
 			if (_rootSelection.itemName === _leafSelection.itemName)
 				return;
+
 			var localFileItem = searchLeafSelectionLocally();
-			if (localFileItem) {
+			if (localFileItem.length > 0) {
 				localFileItem.click();
 			} else {
 				_localImitation = true;
-				_connController.getLocalItems(localImitatedFile);
+				_connController.getLocalItemsByName(_leafSelection);
 			}
 			return;
 		};
 
-		_localImitation = false;
 		createFileTree();
 
 		initFileTree('#fileTree_'+_fileTreesCntr, _fileTreeModule, root, linkedFiles, autoExpand,
@@ -225,6 +231,7 @@ define(["modules/file"], function(FileParser) {
 				});
 		});
 
+		_localImitation = false;
 		_fileTreesCntr++;
 	};
 

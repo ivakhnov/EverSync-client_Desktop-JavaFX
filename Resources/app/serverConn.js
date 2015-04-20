@@ -153,14 +153,13 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	/**
 	 * Sends a request to the server to open the file on the device where it is stored
 	 */
-	function openOnRemote(hostId, fileRemoteLocation, fileRemoteName) {
+	function openOnRemote(hostId, fileRemoteLocation) {
 		req = {
 			"msgType"		: "Normal Request",
 			"methodName"	: "openRemotely",
 			"params"		: {
 				"hostId"	: hostId,
-				"filePath"	: fileRemoteLocation,
-				"fileName"	: fileRemoteName
+				"filePath"	: fileRemoteLocation
 			}
 		};
 		_socket.write(prepareMsg(req));
@@ -191,13 +190,14 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	/**
 	 * Sends a request to the server for to get a file from a remote client or service.
 	 */
-	function copyFromRemoteAndOpen(hostId, fileUri) {
+	function copyFromRemoteAndOpen(hostId, fileUri, fileName) {
 		var req = {
 			"msgType"		: "Normal Request",
 			"methodName"	: "copyFromRemoteAndOpen",
 			"params"		: {
 				"hostId"	: hostId,
-				"fileUri"	: fileUri
+				"fileUri"	: fileUri,
+				"fileName"	: fileName
 			}
 		};
 		_socket.write(prepareMsg(req));
