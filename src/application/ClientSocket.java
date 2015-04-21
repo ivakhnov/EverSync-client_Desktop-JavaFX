@@ -46,7 +46,7 @@ public class ClientSocket {
 
 	public ClientSocket(String serverAddress, int serverPort, WebEngine webEngine) {
 		_webEngine = webEngine;
-		_serverAddress = new InetSocketAddress(serverAddress,serverPort);
+		_serverAddress = new InetSocketAddress(serverAddress, serverPort);
 		_socket = new Socket();
 	}
 
@@ -129,7 +129,6 @@ public class ClientSocket {
 						FileSystem.createAndOpenTempFile(fileName, fileByteArray);
 					}
 					
-
 					socket.close();
 				} catch (IOException e) {
 					e.printStackTrace();

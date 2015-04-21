@@ -295,6 +295,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				syncResponse();
 				break;
 			case "Download Preparation":
+				console.log("downloadPreparation();");
 				downloadPreparation(msg);
 				break;
 			case "Normal Message":
