@@ -117,14 +117,17 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		filePath = _clientModel.getRootPath() + "/" + filePath;
 		console.log("Sending file: " + filePath);
 		file = FileSystem.getFile(filePath);
-		var msg = {
-			"msgType"	: "File Upload Preparation",
-			"fileSize"	: file.length().toString()
+		handshakeMsg = {
+			"msgType"	: "Handshake Response",
+			"clientId"	: _clientModel.getId()
 		};
-		// Send the file size, then the file
-		console.log(msg);
-		_socket.write(prepareMsg(msg));
-		_socket.sendFile(file);
+		var uploadPrepMsg = {
+			"msgType"	: "Client Communication",
+			"msg"		: "File Upload Preparation",
+			"fileSize"	: file.length().toString(),
+			"filePath"	: filePath
+		};
+		_socket.sendFile(prepareMsg(handshakeMsg), prepareMsg(uploadPrepMsg), file);
 	};
 
 	/**
@@ -146,8 +149,12 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			"msgType"	: "Handshake Response",
 			"clientId"	: _clientModel.getId()
 		};
+		downloadAcknowledgement = {
+			"msgType"	: "Client Communication",
+			"msg"		: "Download Acknowledgement"
+		};
 		FileSystemWatcher.ignoreEventOn(filePath);
-		_socket.receiveFile(prepareMsg(handshakeMsg), parseInt(fileSize), fileName, filePath);
+		_socket.receiveFile(prepareMsg(handshakeMsg), prepareMsg(downloadAcknowledgement), parseInt(fileSize), fileName, filePath);
 	};
 
 	/**
@@ -205,7 +212,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 
 	/**
 	 * Sends a request to the server to ask a plugin how to open this particular item.
-	 * After sending the request, the client 'forgets' about it, and its up to a plugin to 
+	 * After sending the request, the client 'forgets' about it, and its up to a plugin to
 	 * decide how to open and to trigger the actual open-function on the client.
 	 * @param  {[type]} hostType [type of the host of the selected file: EverSyncClient / ExternalService]
 	 * @param  {[type]} hostIds  [Id of the host of the selected file]
@@ -327,7 +334,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 				FileSystem.openFile(_clientModel.getRootPath() + "/" + msg["filePath"]);
 				break;
 			case "openUrlInBrowser":
-				console.log("openUrlInBrowser")
+				console.log("openUrlInBrowser()");
 				FileSystem.openUrlInBrowser(msg["url"]);
 				break;
 			case "setInstalledClients":

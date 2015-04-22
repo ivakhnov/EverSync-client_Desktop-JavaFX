@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.sql.PreparedStatement;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -93,21 +94,35 @@ public class ClientSocket {
 		}
 	}
 
-	public void sendFile(File file) {
-		try {
-			byte[] fileByteArray = new byte[(int) file.length()];
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-			bis.read(fileByteArray, 0, fileByteArray.length);
-			bis.close();
-			_out.write(fileByteArray, 0, fileByteArray.length);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void sendFile(String handshakeMsg, String uploadPreparationMsg, File file) {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					byte[] fileByteArray = new byte[(int) file.length()];
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+					bis.read(fileByteArray, 0, fileByteArray.length);
+					bis.close();
+					
+					Socket socket =  new Socket();
+					socket.connect(_serverAddress);
+					BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+					in.readLine(); // read the handshake message
+					out.writeBytes(handshakeMsg); // send the response
+					out.writeBytes(uploadPreparationMsg); // send the acknowledgement that we're ready for download
+					out.write(fileByteArray, 0, fileByteArray.length);
+					socket.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
-	public void receiveFile(String handshakeMsg, int fileSize, String fileName, String filePath) {
+	public void receiveFile(String handshakeMsg, String downloadAcknowledgement, int fileSize, String fileName, String filePath) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -120,6 +135,7 @@ public class ClientSocket {
 					DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 					in.readLine(); // read the handshake message
 					out.writeBytes(handshakeMsg); // send the response
+					out.writeBytes(downloadAcknowledgement); // send the acknowledgement that we're ready for download
 
 					InputStream inStream = socket.getInputStream();
 					inStream.read(fileByteArray, 0, fileByteArray.length);
