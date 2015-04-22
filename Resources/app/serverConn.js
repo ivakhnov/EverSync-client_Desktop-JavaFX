@@ -113,8 +113,8 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		_mainView.fileTreeRecursion(items);
 	};
 
-	function uploadFile(filePath) {
-		filePath = _clientModel.getRootPath() + "/" + filePath;
+	function uploadFile(relativeFilePath) {
+		var filePath = _clientModel.getRootPath() + "/" + relativeFilePath;
 		console.log("Sending file: " + filePath);
 		file = FileSystem.getFile(filePath);
 		handshakeMsg = {
@@ -125,7 +125,7 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			"msgType"	: "Client Communication",
 			"msg"		: "File Upload Preparation",
 			"fileSize"	: file.length().toString(),
-			"filePath"	: filePath
+			"filePath"	: relativeFilePath
 		};
 		_socket.sendFile(prepareMsg(handshakeMsg), prepareMsg(uploadPrepMsg), file);
 	};
