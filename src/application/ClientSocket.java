@@ -111,7 +111,14 @@ public class ClientSocket {
 					in.readLine(); // read the handshake message
 					out.writeBytes(handshakeMsg); // send the response
 					out.writeBytes(uploadPreparationMsg); // send the acknowledgement that we're ready for download
-					out.write(fileByteArray, 0, fileByteArray.length);
+					
+					String stringRepresentation = new String();
+					for (int i=0; i<fileByteArray.length; i++) {
+						byte bt = fileByteArray[i];
+						stringRepresentation += (","+bt);
+					}
+					out.writeBytes(stringRepresentation.substring(1));
+					
 					socket.close();
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
