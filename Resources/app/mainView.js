@@ -114,18 +114,23 @@ define(["modules/file"], function(FileParser) {
 		};
 
 		var canOpenLocal = (hostIds.length == 0) || (hostIds.indexOf(_clientModel.getId()) != -1);
+		var canOpenByPlugin = (hostType && hostType != 'EverSyncClient');
 
-		menuItems.push({ id: idCounter, text: 'Open on this device', disabled: !canOpenLocal });
-		if (hostType && hostType != 'EverSyncClient') {
+		menuItems.push({ id: idCounter, text: 'Open on this device', disabled: !canOpenLocal && !canOpenByPlugin });
+		if (canOpenByPlugin) {
 			menuFns.push(function() {
 				_connController.askPluginToOpen(hostType, hostIds[0], uris[0]);
 				// normally those are arrays with only 1 element in it, so feel safe to pick the first one
 			});
 		} else {
-			menuFns.push(function() {
-				var filePath = _clientModel.getRootPath() + "/" + localLocation;
-				FileSystem.openFile(filePath);
-			});
+			if (canOpenLocal) {
+				menuFns.push(function() {
+					var filePath = _clientModel.getRootPath() + "/" + localLocation;
+					FileSystem.openFile(filePath);
+				});
+			} else {
+				_connController.copyFromRemoteAndOpen(hostIds[0], uris[0], fileName)
+			}
 			idCounter++;
 
 			// Check whether it's a remote file or a local file (does it have hosts). If yes, extend context menu.
