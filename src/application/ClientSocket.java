@@ -112,10 +112,11 @@ public class ClientSocket {
 					out.writeBytes(handshakeMsg); // send the response
 					out.writeBytes(uploadPreparationMsg); // send the acknowledgement that we're ready for download
 					
-					String stringRepresentation = new String();
+					StringBuilder stringRepresentation = new StringBuilder();
 					for (int i=0; i<fileByteArray.length; i++) {
 						byte bt = fileByteArray[i];
-						stringRepresentation += (","+bt);
+						stringRepresentation.append(",");
+						stringRepresentation.append(bt);
 					}
 					out.writeBytes(stringRepresentation.substring(1));
 					
