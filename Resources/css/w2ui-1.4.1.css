@@ -2751,3 +2751,15 @@ button.btn-red.clicked {
 .w2ui-listview > ul > li div.icon-none {
   border: 1px solid rgba(102, 102, 102, 0.35);
 }
+
+.notification-counter {   
+  position: absolute;
+  top: 3px;
+  left: 28px;
+
+  background-color: rgba(212, 19, 13, 1);
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 3px;
+  font: 8px Verdana;
+}

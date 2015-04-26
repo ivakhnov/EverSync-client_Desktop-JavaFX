@@ -233,6 +233,16 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		_socket.write(prepareMsg(msg));
 	};
 
+	function addToLinkQueue(fileInfo) {
+		_clientModel.addToLinkQueue(fileInfo);
+		_mainView.increaseLinkQueue();
+	};
+
+	function removeFromLinkQueue(fileInfo) {
+		_clientModel.removeFromLinkQueue(fileInfo);
+		_mainView.decreaseLinkQueue();
+	};
+
 	/**
 	 * Synchronization if the local file system (or its changes) with to the server
 	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
@@ -344,6 +354,14 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 			case "setConnectedClients":
 				console.log("setConnectedClients();" + msg["clients"]);
 				setConnectedClients(msg["clients"]);
+				break;
+			case "addToLinkQueue":
+				console.log("addToLinkQueue()");
+				addToLinkQueue(msg["fileInfo"]);
+				break;
+			case "removeFromLinkQueue":
+				console.log("removeFromLinkQueue()");
+				removeFromLinkQueue(msg["fileInfo"]);
 				break;
 			default:
 				console.log("Unrecognized method requested: " + method);

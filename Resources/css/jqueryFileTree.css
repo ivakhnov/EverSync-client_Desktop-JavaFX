@@ -43,7 +43,6 @@ UL.jqueryFileTree A.selected {
 	padding: 5px;
 }
 
-
 /* Core Styles */
 .jqueryFileTree LI.directory { background: url(../images/file_extensions/directory.png) left top no-repeat; }
 .jqueryFileTree LI.expanded { background: url(../images/file_extensions/folder_open.png) left top no-repeat; }

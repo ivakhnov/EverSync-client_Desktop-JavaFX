@@ -16,18 +16,68 @@ define(["modules/file"], function(FileParser) {
 					toolbar: {
 						items: [
 							{ type: 'break',  id: 'break1' },
-							{ id: 'bt3', type: 'button', caption: 'Add Link', img: 'icon-add' },
+							{ id: 'btn', type: 'button', caption: 'Add Link', img: 'icon-page', disabled: true },
 							{ type: 'break',  id: 'break2' }
 						],
 						onClick: function (event) {
-							console.log('event');
+							$('#w2ui-popup').w2popup('open', {
+								title 	: 'Popup Title',
+								showMax	: true,
+								keyboard: true,    // will close on esc if not modal
+								onOpen	: function (event) {
+									event.onComplete = function() {
+										Grid.box = $("#w2ui-popup .w2ui-msg-body");
+										Grid.render();
+									};
+								},
+								onToggle: function(event) { // event when maximized
+									event.onComplete = function() {
+										Grid.resize();
+									}
+								}
+							}); 
 						}
 					}
 				},
 				{ type: 'main', size: '100%', resizable: true, style: pstyle }
 			]
 		});
-		$('#layout_mainLayout_panel_top > .w2ui-panel-content').remove();
+
+		var GridConfig = {
+			Grid: {
+				name: 'linkQueueGrid', 
+				columns: [                
+					{ field: 'hostId', caption: 'Service', size: '30%' },
+					{ field: 'name', caption: 'File Name', size: '30%' },
+					{ field: 'nameLabel', caption: 'Label', size: '40%' },
+					{ field: 'adate', caption: 'Added On', size: '90px' },
+				],
+				records: function() {
+					var linkQueue = _clientModel.getLinkQueue();
+					linkQueue.forEach(function (el, idx) {
+						el = $.extend(el, {'recid': idx});
+					})
+					return linkQueue;
+				}(),
+				onExpand: function (event) {
+					if (w2ui.hasOwnProperty('subgrid-' + event.recid)) w2ui['subgrid-' + event.recid].destroy();
+					$('#'+ event.box_id).css({ margin: '0px', padding: '0px', width: '100%' }).animate({ height: '25px' }, 100);
+					setTimeout(function () {
+						$('<input>').attr({
+							id: 'file',
+							name: 'bar'
+						}).appendTo('#'+ event.box_id);
+						var parentHeight = $('#file').parent().height();
+						var parentWidth = $('#file').parent().width();
+						$('#file').css('height', parentHeight);
+						$('#file').css('width', parentWidth);
+						$('#file').w2field('file', {});
+					}, 300);
+				}
+			}
+		}
+
+		var Grid = $().w2grid(GridConfig.Grid);
 	});
 
 
@@ -198,6 +248,65 @@ define(["modules/file"], function(FileParser) {
 		};
 	};
 
+	/**
+	 * Implement the link-queue visualization
+	 */
+	function increaseLinkQueue() {
+		if (w2ui.mainLayout_top_toolbar.items[1].disabled) {
+			w2ui.mainLayout_top_toolbar.enable('btn');
+			setTimeout(function () { // needs timeout because w2ui itself uses timeouts
+				$('.icon-page').removeClass('w2ui-tb-image');
+				$('.icon-page').append('<span class="notification-counter">1</span>');
+			}, 25);
+		} else {
+			var counter = $('.notification-counter');
+			var counterVal = parseInt(counter.text());
+			counterVal++;
+			counter.text(counterVal);
+			counter.css({
+				opacity: 0.9,
+				top: '0px'
+			});
+
+			// Animation
+			counter.animate({
+				opacity: 1,
+				top: '3px',
+			}, 500);
+		}
+	};
+
+	function decreaseLinkQueue() {
+		if (w2ui.mainLayout_top_toolbar.items[1].disabled)
+			return;
+
+		var counter = $('.notification-counter');
+		var counterVal = parseInt(counter.text());
+		if (counterVal === 1) {
+			w2ui.mainLayout_top_toolbar.disable('btn');
+		} else {
+			counterVal--;
+			counter.text(counterVal);
+			counter.css({
+				opacity: 0.9,
+				top: '0px'
+			});
+
+			// Animation
+			counter.animate({
+				opacity: 1,
+				top: '3px',
+			}, 500);
+		}
+	};
+
+	 /**
+	  * File tree recusion
+	  * @param  {[type]} linkedFiles [description]
+	  * @param  {[type]} root        [description]
+	  * @param  {[type]} autoExpand  [description]
+	  * @return {[type]}             [description]
+	  */
 	function fileTreeRecursion (linkedFiles, root, autoExpand) {
 		if ($.isEmptyObject(linkedFiles) && $.isEmptyObject(root) && _localImitation)
 			return; // No results available, not on remote services, not on clients.
@@ -254,6 +363,8 @@ define(["modules/file"], function(FileParser) {
 	// Return access to some internal functions a.k.a. public members.
 	return {
 		init : init,
-		fileTreeRecursion : fileTreeRecursion
+		fileTreeRecursion : fileTreeRecursion,
+		increaseLinkQueue : increaseLinkQueue,
+		decreaseLinkQueue : decreaseLinkQueue
 	};
 });

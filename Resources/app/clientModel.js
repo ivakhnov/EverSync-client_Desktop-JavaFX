@@ -6,7 +6,7 @@ define(function() {
 	var _os = null;
 	var _installedClients = [];
 	var _connectedClients = [];
-
+	var _linkQueue = [];
 
 	return {
 		alreadyInstalled: function() {
@@ -53,6 +53,36 @@ define(function() {
 
 		getConnectedClients : function() {
 			return _connectedClients;
+		},
+
+		addToLinkQueue : function(fileInfo) {
+			_linkQueue.push(fileInfo); // push at the end
+		},
+
+		getLinkQueue : function() {
+			return _linkQueue;
+		},
+
+		removeFromLinkQueue : function(fileInfo) {
+			var elIdx = null;
+			for (var i = 0; i < _linkQueue.length; i++) {
+				if (_linkQueue[i]['hostType'] === fileInfo['hostType'] &&
+					_linkQueue[i]['hostId'] === fileInfo['hostId'] &&
+					_linkQueue[i]['uri'] === fileInfo['uri'] &&
+					_linkQueue[i]['name'] === fileInfo['name'])
+				{
+					elIdx = i;
+					break;
+				}
+			}
+			if (!elIdx)
+				throw 'Cannot remove a non-existent element from the LinkQueue';
+
+			_linkQueue.splice(elIdx, 1); // remove 1 element at given idx
+		},
+
+		getLinkQueueLength : function() {
+			return _linkQueue.length;
 		},
 
 		/**
