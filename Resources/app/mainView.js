@@ -3,6 +3,24 @@
  */
 
 define(["modules/file"], function(FileParser) {
+	
+	/**
+	 * Variables
+	 */
+
+	// Depending on the organization of the data, it has to be parsed by an appropriate
+	// module. For example the structure of the data read from the local file system is
+	// different from the structure of the data received from the server. Therefore different
+	// modules are needed to parse it, since the visualization is almost the same of all the data,
+	// even though it's from different sources.
+	var _fileTreeModule = null;
+	var _connController = null;
+	var _clientModel = null;
+	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
+	var _rootSelection = null; // Selected file in the very first file tree
+	var _leafSelection = null; // Selected file in the very last file tree
+	var _localImitation = false; // Prevent infinite loops while navigating items on clients as local files
+
 	$(document).ready(function() {
 		/**
 		 * Main initializations
@@ -27,6 +45,7 @@ define(["modules/file"], function(FileParser) {
 								keyboard: true,    // will close on esc if not modal
 								onOpen	: function (event) {
 									event.onComplete = function() {
+										var Grid = $().w2grid(document.GridConfig());
 										Grid.box = $("#w2ui-popup .w2ui-msg-body");
 										Grid.render();
 										$('.btnLinkSelected').click(function() {
@@ -64,8 +83,8 @@ define(["modules/file"], function(FileParser) {
 			]
 		});
 
-		var GridConfig = {
-			Grid: {
+		document.GridConfig = function() {
+			return {
 				name: 'linkQueueGrid', 
 				columns: [                
 					{ field: 'hostId', caption: 'Service', size: '30%' },
@@ -98,29 +117,7 @@ define(["modules/file"], function(FileParser) {
 				}
 			}
 		}
-
-		var Grid = $().w2grid(GridConfig.Grid);
-
 	});
-
-
-	/**
-	 * Variables
-	 */
-
-	// Depending on the organization of the data, it has to be parsed by an appropriate
-	// module. For example the structure of the data read from the local file system is
-	// different from the structure of the data received from the server. Therefore different
-	// modules are needed to parse it, since the visualization is almost the same of all the data,
-	// even though it's from different sources.
-	var _fileTreeModule = null;
-	var _connController = null;
-	var _clientModel = null;
-	var _fileTreesCntr = 1; // The file trees will keep spawning, so global counter to keep track of them
-	var _rootSelection = null; // Selected file in the very first file tree
-	var _leafSelection = null; // Selected file in the very last file tree
-	var _localImitation = false; // Prevent infinite loops while navigating items on clients as local files
-
 
 	/**
 	 * Help methods
