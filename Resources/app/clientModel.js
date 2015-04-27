@@ -63,6 +63,11 @@ define(function() {
 			return _linkQueue;
 		},
 
+		getLinkQueueItem : function(elIdx) {
+			if (elIdx >= _linkQueue.length || elIdx < 0) return -1;
+			return _linkQueue[elIdx];
+		},
+
 		removeFromLinkQueue : function(fileInfo) {
 			var elIdx = null;
 			for (var i = 0; i < _linkQueue.length; i++) {

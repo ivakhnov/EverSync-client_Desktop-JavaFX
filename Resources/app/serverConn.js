@@ -244,6 +244,20 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	/**
+	 * Send a request to the server to link two files
+	 */
+	function createLink(remoteFileInfo, localFileInfo) {
+		var msg = {
+			"msgType"		: "Normal Request",
+			"methodName"	: "",
+			"params"		: {
+			}
+		};
+
+		_socket.write(prepareMsg(msg));
+	};
+
+	/**
 	 * Synchronization if the local file system (or its changes) with to the server
 	 * This function will be triggered by the FileSystemWatcher. The server sends a sync response back.
 	 */
@@ -399,7 +413,8 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 		startSyncing : startSyncing,
 		openOnRemote : openOnRemote,
 		askPluginToOpen : askPluginToOpen,
-		copyFromRemoteAndOpen : copyFromRemoteAndOpen
+		copyFromRemoteAndOpen : copyFromRemoteAndOpen,
+		createLink : createLink
 	};
 
 });

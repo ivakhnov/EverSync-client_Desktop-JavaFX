@@ -7,6 +7,7 @@ define(["modules/file"], function(FileParser) {
 		/**
 		 * Main initializations
 		 */
+
 		var pstyle = 'background-color: #F5F6F7; border: 1px solid #dfdfdf; padding: 5px; white-space:nowrap;';
 
 		$('#mainLayout').w2layout({
@@ -21,20 +22,40 @@ define(["modules/file"], function(FileParser) {
 						],
 						onClick: function (event) {
 							$('#w2ui-popup').w2popup('open', {
-								title 	: 'Popup Title',
+								title 	: 'Remote File To Link',
 								showMax	: true,
 								keyboard: true,    // will close on esc if not modal
 								onOpen	: function (event) {
 									event.onComplete = function() {
 										Grid.box = $("#w2ui-popup .w2ui-msg-body");
 										Grid.render();
+										$('.btnLinkSelected').click(function() {
+											var uploader = $('.fileUploader');
+											for (var i = 0; i < uploader.length; i++) {
+												var selected = uploader[i];
+												var selectedData = $(selected).data('selected');
+												// we are interested in the name and path of a file, not its content
+												delete selectedData.content;
+
+												var myRegexp = /Grid_rec_(.*)/;
+												var selectedQueueId = myRegexp.exec($(selected).attr('id'))[1][0];
+												var queueEl = _clientModel.getLinkQueueItem(selectedQueueId);
+
+												_connController.createLink(queueEl, selectedData);
+												_clientModel.removeFromLinkQueue(queueEl);
+												decreaseLinkQueue();
+												w2popup.close();
+											}
+										});
 									};
 								},
 								onToggle: function(event) { // event when maximized
 									event.onComplete = function() {
 										Grid.resize();
 									}
-								}
+								},
+								buttons: 	'<button class="btn btnLinkSelected">Link</button> '+
+											'<button class="btn" onclick="w2popup.close();">Cancel</button> '
 							}); 
 						}
 					}
@@ -64,20 +85,22 @@ define(["modules/file"], function(FileParser) {
 					$('#'+ event.box_id).css({ margin: '0px', padding: '0px', width: '100%' }).animate({ height: '25px' }, 100);
 					setTimeout(function () {
 						$('<input>').attr({
-							id: 'file',
+							id: 'file'+ event.box_id,
+							class: 'fileUploader',
 							name: 'bar'
 						}).appendTo('#'+ event.box_id);
-						var parentHeight = $('#file').parent().height();
-						var parentWidth = $('#file').parent().width();
-						$('#file').css('height', parentHeight);
-						$('#file').css('width', parentWidth);
-						$('#file').w2field('file', {});
+						var parentHeight = $('#file'+ event.box_id).parent().height();
+						var parentWidth = $('#file'+ event.box_id).parent().width();
+						$('#file'+ event.box_id).css('height', parentHeight);
+						$('#file'+ event.box_id).css('width', parentWidth);
+						$('#file'+ event.box_id).w2field('file', { max: 1});
 					}, 300);
 				}
 			}
 		}
 
 		var Grid = $().w2grid(GridConfig.Grid);
+
 	});
 
 
