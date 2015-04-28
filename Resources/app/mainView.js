@@ -45,9 +45,19 @@ define(["modules/file"], function(FileParser) {
 								keyboard: true,    // will close on esc if not modal
 								onOpen	: function (event) {
 									event.onComplete = function() {
-										var Grid = $().w2grid(document.GridConfig());
-										Grid.box = $("#w2ui-popup .w2ui-msg-body");
-										Grid.render();
+										if (!document.Grid) {
+											document.Grid = $().w2grid(document.GridConfig());
+										}
+										document.Grid.reset();
+										document.Grid.records = function() {
+											var linkQueue = _clientModel.getLinkQueue();
+											linkQueue.forEach(function (el, idx) {
+												el = $.extend(el, {'recid': idx});
+											})
+											return linkQueue;
+										}();
+										document.Grid.box = $("#w2ui-popup .w2ui-msg-body");
+										document.Grid.render();
 										$('.btnLinkSelected').click(function() {
 											var uploader = $('.fileUploader');
 											for (var i = 0; i < uploader.length; i++) {
@@ -70,7 +80,7 @@ define(["modules/file"], function(FileParser) {
 								},
 								onToggle: function(event) { // event when maximized
 									event.onComplete = function() {
-										Grid.resize();
+										document.Grid.resize();
 									}
 								},
 								buttons: 	'<button class="btn btnLinkSelected">Link</button> '+
@@ -92,13 +102,7 @@ define(["modules/file"], function(FileParser) {
 					{ field: 'nameLabel', caption: 'Label', size: '40%' },
 					{ field: 'adate', caption: 'Added On', size: '90px' },
 				],
-				records: function() {
-					var linkQueue = _clientModel.getLinkQueue();
-					linkQueue.forEach(function (el, idx) {
-						el = $.extend(el, {'recid': idx});
-					})
-					return linkQueue;
-				}(),
+				records: [],
 				onExpand: function (event) {
 					if (w2ui.hasOwnProperty('subgrid-' + event.recid)) w2ui['subgrid-' + event.recid].destroy();
 					$('#'+ event.box_id).css({ margin: '0px', padding: '0px', width: '100%' }).animate({ height: '25px' }, 100);
@@ -295,7 +299,7 @@ define(["modules/file"], function(FileParser) {
 			}, 500);
 		}
 	};
-
+window.t = increaseLinkQueue;
 	function decreaseLinkQueue() {
 		if (w2ui.mainLayout_top_toolbar.items[1].disabled)
 			return;
@@ -355,6 +359,7 @@ define(["modules/file"], function(FileParser) {
 				updateLeafSelection(file);
 				if (file.hostType === "EverSyncClient" && _rootSelection && _rootSelection.itemName === file.itemName)
 					return;
+				_localImitation = false;
 				_connController.getLinkedItems(file);
 			},
 			function(file) { // Right click function
