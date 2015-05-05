@@ -239,8 +239,9 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	};
 
 	function removeFromLinkQueue(fileInfo) {
-		_clientModel.removeFromLinkQueue(fileInfo);
-		_mainView.decreaseLinkQueue();
+		if(_clientModel.removeFromLinkQueue(fileInfo)) {
+			_mainView.decreaseLinkQueue();
+		}
 	};
 
 	/**
@@ -249,11 +250,20 @@ define(["modules/pathAdapterOs"], function(pathAdapter) {
 	function createLink(remoteFileInfo, localFileInfo) {
 		var msg = {
 			"msgType"		: "Normal Request",
-			"methodName"	: "",
+			"methodName"	: "linkTwoFiles",
 			"params"		: {
+				"hostId"		: remoteFileInfo["hostId"],
+				"remoteFileName": remoteFileInfo["name"],
+				"localFileName" : localFileInfo[0]["name"]
 			}
 		};
-
+// console.log(JSON.stringify(msg))
+// console.log(msg);
+// console.log(localFileInfo);
+// console.log(typeof localFileInfo);
+// console.log(localFileInfo[0]);
+// console.log(localFileInfo["name"]);
+// console.log(localFileInfo[0]["name"]);
 		_socket.write(prepareMsg(msg));
 	};
 

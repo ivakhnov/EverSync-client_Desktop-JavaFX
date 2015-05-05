@@ -69,21 +69,22 @@ define(function() {
 		},
 
 		removeFromLinkQueue : function(fileInfo) {
-			var elIdx = null;
+			var elIdx;
 			for (var i = 0; i < _linkQueue.length; i++) {
-				if (_linkQueue[i]['hostType'] === fileInfo['hostType'] &&
-					_linkQueue[i]['hostId'] === fileInfo['hostId'] &&
-					_linkQueue[i]['uri'] === fileInfo['uri'] &&
+				if (_linkQueue[i]['hostId'] === fileInfo['hostId'] &&
 					_linkQueue[i]['name'] === fileInfo['name'])
 				{
 					elIdx = i;
 					break;
 				}
 			}
-			if (!elIdx)
-				throw 'Cannot remove a non-existent element from the LinkQueue';
 
-			_linkQueue.splice(elIdx, 1); // remove 1 element at given idx
+			if (typeof elIdx === 'undefined') {
+				return false;
+			} else {
+				_linkQueue.splice(elIdx, 1); // remove 1 element at given idx
+				return true;
+			}
 		},
 
 		getLinkQueueLength : function() {
