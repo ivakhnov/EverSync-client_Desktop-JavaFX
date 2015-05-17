@@ -29,6 +29,8 @@ define(function() {
 		setRootPath: function(path) {
 			_rootPath = path;
 			Database.setRootPath(path);
+			//_rootPath = "C:\"; // Please note: the path is used in the system as a unique id ==> different paths
+			// on different devices makes the same file being considered as two different files.
 		},
 
 		getOs: function() {
